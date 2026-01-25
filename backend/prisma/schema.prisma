@@ -1,0 +1,290 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum GlobalRole {
+  ADMIN
+  USER
+}
+
+enum PropertyRole {
+  OWNER
+  CARETAKER
+  TENANT
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum UnitType {
+  BEDSITTER
+  ONE_BEDROOM
+  TWO_BEDROOM
+  THREE_BEDROOM
+  SHOP
+  OFFICE
+  OTHER
+}
+
+enum UnitStatus {
+  VACANT
+  OCCUPIED
+  MAINTENANCE
+}
+
+enum PaymentType {
+  RENT
+  DEPOSIT
+  PENALTY
+  UTILITY
+  OTHER
+}
+
+enum PaymentMethod {
+  MPESA
+  BANK_TRANSFER
+  CASH
+  CHEQUE
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REVERSED
+}
+
+enum IssueCategory {
+  PLUMBING
+  ELECTRICAL
+  CARPENTRY
+  PAINTING
+  SECURITY
+  OTHER
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model User {
+  id          String     @id @default(uuid())
+  fullName    String     @map("full_name")
+  nationalId  String?    @unique @map("national_id")
+  phone       String     @unique
+  email       String?    @unique
+  password    String
+  globalRole  GlobalRole @default(USER) @map("global_role")
+  status      UserStatus @default(ACTIVE)
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  deletedAt   DateTime?  @map("deleted_at")
+  verificationCode      String?
+  isEmailVerified       Boolean     @default(false)
+  verificationCodeExpiresAt DateTime?
+
+  ownedProperties   Property[]           @relation("PropertyOwner")
+  userPropertyRoles UserPropertyRole[]   @relation("UserPropertyRoles")
+  assignedRoles     UserPropertyRole[]   @relation("AssignedRoles")
+  leases            Lease[]
+  issues            Issue[]
+  auditLogs         AuditLog[]
+
+  @@map("users")
+}
+
+model UserPropertyRole {
+  id         String        @id @default(uuid())
+  userId     String        @map("user_id")
+  propertyId String        @map("property_id")
+  role       PropertyRole  
+  assignedBy String        @map("assigned_by")
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+  removedAt  DateTime?     @map("removed_at")
+
+  user           User     @relation("UserPropertyRoles", fields: [userId], references: [id], onDelete: Cascade)
+  property       Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  assignedByUser User     @relation("AssignedRoles", fields: [assignedBy], references: [id])
+
+  @@unique([userId, propertyId, role])
+  @@index([userId])
+  @@index([propertyId])
+  @@map("property_roles")
+}
+
+model Property {
+  id                      String    @id @default(uuid())
+  ownerId                 String    @map("owner_id")
+  name                    String
+  slug                    String    @unique
+  ownerProvidedIdentifier String?   @map("owner_provided_identifier")
+  county                  String
+  town                    String
+  gpsLatitude             Float?    @map("gps_latitude")
+  gpsLongitude            Float?    @map("gps_longitude")
+  baseCurrency            String    @default("KES") @map("base_currency")
+  isMarketable            Boolean   @default(false) @map("is_marketable")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+  deletedAt               DateTime? @map("deleted_at")
+
+  owner             User                @relation("PropertyOwner", fields: [ownerId], references: [id])
+  userPropertyRoles UserPropertyRole[]
+  units             Unit[]
+  auditLogs         AuditLog[]
+
+  @@index([slug])
+  @@index([ownerId])
+  @@map("properties")
+}
+
+model Unit {
+  id          String     @id @default(uuid())
+  propertyId  String     @map("property_id")
+  unitNumber  String     @map("unit_number")
+  type        UnitType
+  monthlyRent Decimal    @map("monthly_rent") @db.Decimal(12, 2)
+  status      UnitStatus @default(VACANT)
+  floor       Int?
+  photos      String[]
+  description String?
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  deletedAt   DateTime?  @map("deleted_at")
+
+  property         Property          @relation(fields: [propertyId], references: [id])
+  leases           Lease[]
+  issues           Issue[]
+  marketingListing MarketingListing?
+
+  @@unique([propertyId, unitNumber])
+  @@index([propertyId])
+  @@map("units")
+}
+
+model Lease {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  unitId      String    @map("unit_id")
+  leaseStart  DateTime  @map("lease_start")
+  leaseEnd    DateTime? @map("lease_end")
+  agreedRent  Decimal   @map("agreed_rent") @db.Decimal(12, 2)
+  deposit     Decimal   @db.Decimal(12, 2)
+  active      Boolean   @default(true)
+  rating      Int?
+  feedback    String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  terminatedAt DateTime? @map("terminated_at")
+
+  user     User      @relation(fields: [userId], references: [id])
+  unit     Unit      @relation(fields: [unitId], references: [id])
+  payments Payment[]
+  issues   Issue[]
+
+  @@index([userId])
+  @@index([unitId])
+  @@index([active])
+  @@map("leases")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  leaseId       String        @map("lease_id")
+  amount        Decimal       @db.Decimal(12, 2)
+  type          PaymentType
+  method        PaymentMethod
+  mpesaReceipt  String?       @map("mpesa_receipt")
+  reference     String?
+  status        PaymentStatus @default(PENDING)
+  paidAt        DateTime?     @map("paid_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  lease Lease @relation(fields: [leaseId], references: [id])
+
+  @@index([leaseId])
+  @@index([status])
+  @@map("payments")
+}
+
+model Issue {
+  id          String        @id @default(uuid())
+  leaseId     String        @map("lease_id")
+  unitId      String        @map("unit_id")
+  reportedBy  String        @map("reported_by")
+  category    IssueCategory
+  title       String
+  description String
+  status      IssueStatus   @default(OPEN)
+  priority    IssuePriority @default(MEDIUM)
+  photos      String[]
+  resolvedAt  DateTime?     @map("resolved_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  lease        Lease @relation(fields: [leaseId], references: [id])
+  unit         Unit  @relation(fields: [unitId], references: [id])
+  reportedByUser User  @relation(fields: [reportedBy], references: [id])
+
+  @@index([leaseId])
+  @@index([unitId])
+  @@index([status])
+  @@map("issues")
+}
+
+model MarketingListing {
+  id          String    @id @default(uuid())
+  unitId      String    @unique @map("unit_id")
+  active      Boolean   @default(true)
+  price       Decimal   @db.Decimal(12, 2)
+  viewsCount  Int       @default(0) @map("views_count")
+  publishedAt DateTime? @map("published_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  unit Unit @relation(fields: [unitId], references: [id])
+
+  @@index([active])
+  @@map("marketing_listings")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  propertyId String   @map("property_id")
+  action     String
+  entity     String
+  entityId   String   @map("entity_id")
+  changes    Json?
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user     User     @relation(fields: [userId], references: [id])
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@index([userId])
+  @@index([propertyId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
