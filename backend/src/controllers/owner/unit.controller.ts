@@ -51,8 +51,8 @@ export const getUnits = async (
 
     if (req.propertyRole === PropertyRole.TENANT) {
       // Tenants only see their own units
-      filteredUnits = units.filter((unit) =>
-        unit.leases.some((lease) => lease.userId === req.user!.id),
+      filteredUnits = units.filter((unit: any) =>
+        unit.leases.some((lease: any) => lease.userId === req.user!.id),
       );
     }
 

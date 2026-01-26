@@ -1,18 +1,17 @@
-FROM node:24-alpine AS builder
+FROM node:24-bullseye AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package*.json yarn.lock* ./
 COPY prisma ./prisma/
 
-RUN npm ci
+RUN yarn install --frozen-lockfile
 
 COPY . .
 
-RUN npm run build
-RUN npm run prisma:generate
+RUN yarn run build && ls -la dist/
 
-FROM node:24-alpine AS runner
+FROM node:24-bullseye AS runner
 
 WORKDIR /app
 
@@ -21,6 +20,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/prisma ./prisma
 
+ENV PORT=3000
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["yarn", "start"]

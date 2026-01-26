@@ -7,16 +7,16 @@ help: ## Show this help message
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 install: ## Install dependencies
-	npm install
+	yarn install
 
 dev: ## Start development server
-	npm run dev
+	yarn run dev
 
 build: ## Build for production
-	npm run build
+	yarn run build
 
 start: ## Start production server
-	npm start
+	yarn start
 
 clean: ## Clean build artifacts and dependencies
 	rm -rf dist node_modules
@@ -41,13 +41,13 @@ db-studio: ## Open Prisma Studio
 	npx prisma studio
 
 db-seed: ## Seed database
-	npm run prisma:seed
+	yarn run prisma:seed
 
 db-reset: ## Reset database
 	npx prisma migrate reset
 
 lint: ## Run linter
-	npm run lint
+	yarn run lint
 
 format: ## Format code
 	npm run format

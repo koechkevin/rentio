@@ -236,7 +236,7 @@ export const login = async (
           id: user.id,
           fullName: user.fullName,
           globalRole: user.globalRole,
-          userPropertyRoles: user.userPropertyRoles.map((pr) => ({
+          userPropertyRoles: user.userPropertyRoles.map((pr: any) => ({
             propertyId: pr.propertyId,
             role: pr.role,
           })),

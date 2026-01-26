@@ -148,7 +148,7 @@ export const getDashboard = async (
       ? (activeLeases.length / units.length) * 100
       : 0;
     const monthlyIncome = payments.reduce(
-      (sum, p) => sum + Number(p.amount),
+      (sum: number, p: any) => sum + Number(p.amount),
       0,
     );
 
