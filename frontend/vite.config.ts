@@ -29,4 +29,12 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      external: [],
+    },
+  },
+  esbuild: {
+    logLevel: 'silent',
+  },
 });

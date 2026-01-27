@@ -11,3 +11,10 @@ services:
     volumes:
       - /app/node_modules
     command: sh -c "yarn prisma generate && yarn prisma migrate deploy && yarn start"
+    networks:
+      - rentio_network
+
+networks:
+  rentio_network:
+    driver: bridge
+    external: false
