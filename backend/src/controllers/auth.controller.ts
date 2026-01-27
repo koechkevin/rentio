@@ -54,13 +54,13 @@ export const register = async (
     // Send verification email
     await sendVerificationEmail(email, verificationCode);
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Registration successful. Please verify your email.",
       data: { user },
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 

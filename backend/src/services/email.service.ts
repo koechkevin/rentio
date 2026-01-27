@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { AppError } from "../middleware/errorHandler";
 // BREVO_API_KEY
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp-relay.brevo.com",
@@ -65,6 +66,6 @@ export const sendVerificationEmail = async (
     console.log(`Verification email sent to ${to}`);
   } catch (error) {
     console.error("Failed to send verification email:", error);
-    throw new Error("Email sending failed");
+    throw new AppError(JSON.stringify(error), 500);
   }
 };

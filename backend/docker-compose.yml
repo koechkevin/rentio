@@ -10,7 +10,7 @@ services:
       - .env
     volumes:
       - /app/node_modules
-    command: sh -c "yarn prisma generate && yarn prisma migrate deploy && yarn start"
+    command: sh -c "yarn start"
     networks:
       - rentio_network
 
