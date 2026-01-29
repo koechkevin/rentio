@@ -1,4 +1,6 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { baseQueryWithReauth } from './baseQueryWithReauth';
+
 import { API_CONFIG } from '@/config/api';
 
 export interface LoginRequest {
@@ -67,21 +69,9 @@ export interface VerifyEmailResponse {
   };
 }
 
-const baseQuery = fetchBaseQuery({
-  baseUrl: API_CONFIG.BASE_URL,
-  prepareHeaders: (headers, { getState }: any) => {
-    const token = getState().auth.token;
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
-    }
-    headers.set('Content-Type', 'application/json');
-    return headers;
-  },
-});
-
 export const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery,
+  baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (credentials) => ({

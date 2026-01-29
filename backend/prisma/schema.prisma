@@ -87,11 +87,15 @@ enum IssuePriority {
 }
 
 model User {
-  id          String     @id @default(uuid())
+  id                String              @id @default(cuid())
+  email             String              @unique
+  displayPicture    String?
+  backgroundPicture String?
+  about             String?             @db.Text
+  website           String?
   fullName    String     @map("full_name")
   nationalId  String?    @unique @map("national_id")
   phone       String     @unique
-  email       String?    @unique
   password    String
   globalRole  GlobalRole @default(USER) @map("global_role")
   status      UserStatus @default(ACTIVE)
@@ -109,6 +113,8 @@ model User {
   issues            Issue[]
   auditLogs         AuditLog[]
 
+  activities        UserActivity[]
+  tenancyAgreements TenancyAgreement[]
   @@map("users")
 }
 
@@ -288,4 +294,55 @@ model AuditLog {
   @@index([propertyId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+model UserActivity {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activityType ActivityType
+  description  String
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+enum ActivityType {
+  LOCATION_CHANGE
+  DOCUMENT_UPLOAD
+  PROPERTY_ADDITION
+  PROFILE_UPDATE
+}
+
+model TenancyAgreement {
+  id                 String          @id @default(cuid())
+  userId             String
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId         String
+  startDate          DateTime
+  endDate            DateTime
+  rentAmount         Float
+  rentFrequency      RentFrequency   @default(MONTHLY)
+  agreementDocument  String?
+  status             TenancyStatus   @default(ACTIVE)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum RentFrequency {
+  MONTHLY
+  QUARTERLY
+  ANNUALLY
+}
+
+enum TenancyStatus {
+  ACTIVE
+  EXPIRED
+  TERMINATED
 }

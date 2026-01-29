@@ -78,6 +78,8 @@ app.use(`/api/${API_VERSION}`, router);
 // app.use(notFoundHandler);
 app.use(errorHandler);
 
+// Register routes
+
 // Start server
 app.listen(PORT, () => {
   logger.info(`🚀 Server running on port ${PORT}`);

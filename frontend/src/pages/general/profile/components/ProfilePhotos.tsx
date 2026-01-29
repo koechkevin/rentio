@@ -14,7 +14,7 @@ const photos = [
   '/images/faces/face.jpg',
 ];
 
-const ProfilePhotos = () => (
+const ProfilePhotos = ({ userId }: { userId: string }) => (
   <Card>
     <Card.Body>
       <Card.Title>latest photos</Card.Title>

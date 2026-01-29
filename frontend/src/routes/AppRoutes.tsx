@@ -2,6 +2,8 @@ import { lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 import AuthGuard from '@/auth/AuthGuard';
 import RouteErrorBoundary from '@/components/error-boundaries/RouteErrorBoundary';
+import CreateProperty from '@/pages/properties/CreateProperty';
+import PropertyList from '@/pages/properties/PropertyList';
 
 const MainLayout = lazy(() => import('@/layouts/MainLayout'));
 const AuthLayout = lazy(() => import('@/layouts/AuthLayout'));
@@ -101,17 +103,18 @@ const AppRoutes = () => {
                 </RouteErrorBoundary>
               }
             />
-
-            <Route path="apps/calendar" element={<CalendarPage />} />
-            <Route path="apps/chat" element={<ChatPage />} />
-            <Route element={<EmailLayout />}>
+            <Route path="/properties/add" element={<CreateProperty />} />
+            <Route path="/properties" element={<PropertyList />} />
+            {/* <Route path="apps/calendar" element={<CalendarPage />} />
+            <Route path="apps/chat" element={<ChatPage />} /> */}
+            {/* <Route element={<EmailLayout />}>
               <Route path="apps/email/inbox" element={<InboxPage />} />
               <Route path="apps/email/read" element={<ReadPage />} />
               <Route path="apps/email/read/:emailId" element={<ReadPage />} />
               <Route path="apps/email/compose" element={<ComposePage />} />
-            </Route>
+            </Route> */}
 
-            <Route path="ui-components/accordion" element={<AccordionPage />} />
+            {/* <Route path="ui-components/accordion" element={<AccordionPage />} />
             <Route path="ui-components/alerts" element={<AlertPage />} />
             <Route path="ui-components/badges" element={<BadgePage />} />
             <Route path="ui-components/breadcrumbs" element={<BreadcrumbPage />} />
@@ -156,7 +159,7 @@ const AppRoutes = () => {
             <Route path="advanced-forms/color-picker" element={<ColorPickerPage />} />
             <Route path="advanced-forms/dropzone" element={<DropzonePage />} />
             <Route path="advanced-forms/datepicker" element={<DatePickerPage />} />
-            <Route path="advanced-forms/text-editor" element={<TextEditorPage />} />
+            <Route path="advanced-forms/text-editor" element={<TextEditorPage />} /> */}
 
             <Route
               path="charts/apexcharts"
