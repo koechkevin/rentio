@@ -4,6 +4,9 @@ import AuthGuard from '@/auth/AuthGuard';
 import RouteErrorBoundary from '@/components/error-boundaries/RouteErrorBoundary';
 import CreateProperty from '@/pages/properties/CreateProperty';
 import PropertyList from '@/pages/properties/PropertyList';
+import UnitList from '@/pages/properties/units/UnitList';
+import EditUnit from '@/pages/properties/units/EditUnit';
+import AddUnit from '@/pages/properties/units/AddUnit';
 
 const MainLayout = lazy(() => import('@/layouts/MainLayout'));
 const AuthLayout = lazy(() => import('@/layouts/AuthLayout'));
@@ -105,6 +108,9 @@ const AppRoutes = () => {
             />
             <Route path="/properties/add" element={<CreateProperty />} />
             <Route path="/properties" element={<PropertyList />} />
+            <Route path="/properties/:propertyId/units" element={<UnitList />} />
+            <Route path="/properties/:propertyId/units/add" element={<AddUnit />} />
+            <Route path="/properties/:propertyId/units/:unitId/edit" element={<EditUnit />} />
             {/* <Route path="apps/calendar" element={<CalendarPage />} />
             <Route path="apps/chat" element={<ChatPage />} /> */}
             {/* <Route element={<EmailLayout />}>

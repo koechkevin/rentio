@@ -1,31 +1,28 @@
 import { useState } from 'react';
 import { Row, Col, Card, Table, Badge, Button, Spinner, Alert, Form, InputGroup } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import { useGetPropertiesQuery, type Property } from '../../services/api/propertyApi';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useGetUnitsQuery, type Unit } from '../../../services/api/unitApi';
 
-const PropertyList = () => {
+const UnitList = () => {
   const navigate = useNavigate();
-  const { data, isLoading, error, refetch } = useGetPropertiesQuery();
-  const properties = data?.data ?? [];
+  const { propertyId } = useParams<{ propertyId: string }>();
+  const { data, isLoading, error, refetch } = useGetUnitsQuery(propertyId!, { skip: !propertyId });
+  const units = data?.data ?? [];
+
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Filter properties based on search term
-  const filteredProperties =
-    properties?.filter(
-      (property) =>
-        property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.town.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.county.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.ownerProvidedIdentifier?.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || [];
+  const filteredUnits = units.filter(
+    (unit) =>
+      unit.unitNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      unit.type.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredProperties.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredUnits.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentProperties = filteredProperties.slice(startIndex, endIndex);
+  const currentUnits = filteredUnits.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -33,15 +30,24 @@ const PropertyList = () => {
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+  const getUnitTypeBadge = (type: string) => {
+    const colors: Record<string, string> = {
+      BEDSITTER: 'primary',
+      ONE_BEDROOM: 'info',
+      TWO_BEDROOM: 'success',
+      THREE_BEDROOM: 'warning',
+      SHOP: 'secondary',
+      OFFICE: 'dark',
+      OTHER: 'light',
+    };
+    return colors[type] || 'secondary';
+  };
+
+  const formatUnitType = (type: string) => {
+    return type.replace(/_/g, ' ');
   };
 
   const renderPagination = () => {
@@ -122,8 +128,8 @@ const PropertyList = () => {
   if (error) {
     return (
       <Alert variant="danger">
-        <Alert.Heading>Error loading properties</Alert.Heading>
-        <p>Failed to fetch properties. Please try again later.</p>
+        <Alert.Heading>Error loading units</Alert.Heading>
+        <p>Failed to fetch units. Please try again later.</p>
         <Button variant="outline-danger" onClick={() => refetch()}>
           Retry
         </Button>
@@ -137,12 +143,15 @@ const PropertyList = () => {
         <Col xs={12}>
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h4 className="mb-1">Properties</h4>
-              <p className="text-muted mb-0">Manage all your properties</p>
+              <Button variant="link" className="p-0 mb-2" onClick={() => navigate('/properties')}>
+                <i className="bi bi-arrow-left me-2"></i>Back to Properties
+              </Button>
+              <h4 className="mb-1">Property Units</h4>
+              <p className="text-muted mb-0">Manage units for this property</p>
             </div>
-            <Button variant="primary" onClick={() => navigate('/properties/add')}>
+            <Button variant="primary" onClick={() => navigate(`/properties/${propertyId}/units/add`)}>
               <i className="bi bi-plus-circle me-2"></i>
-              Add Property
+              Add Unit
             </Button>
           </div>
         </Col>
@@ -160,7 +169,7 @@ const PropertyList = () => {
                     </InputGroup.Text>
                     <Form.Control
                       type="text"
-                      placeholder="Search properties by name, town, county, or identifier..."
+                      placeholder="Search units by number or type..."
                       value={searchTerm}
                       onChange={handleSearch}
                     />
@@ -168,22 +177,22 @@ const PropertyList = () => {
                 </Col>
                 <Col md={6} className="text-end">
                   <p className="mb-0 text-muted">
-                    Showing {startIndex + 1} to {Math.min(endIndex, filteredProperties.length)} of{' '}
-                    {filteredProperties.length} properties
+                    Showing {startIndex + 1} to {Math.min(endIndex, filteredUnits.length)} of {filteredUnits.length}{' '}
+                    units
                   </p>
                 </Col>
               </Row>
 
-              {currentProperties.length === 0 ? (
+              {currentUnits.length === 0 ? (
                 <div className="text-center py-5">
-                  <i className="bi bi-building" style={{ fontSize: '3rem', color: '#ccc' }}></i>
-                  <h5 className="mt-3">No properties found</h5>
+                  <i className="bi bi-door-closed" style={{ fontSize: '3rem', color: '#ccc' }}></i>
+                  <h5 className="mt-3">No units found</h5>
                   <p className="text-muted">
-                    {searchTerm ? 'Try adjusting your search criteria' : 'Get started by adding your first property'}
+                    {searchTerm ? 'Try adjusting your search criteria' : 'Get started by adding your first unit'}
                   </p>
                   {!searchTerm && (
-                    <Button variant="primary" onClick={() => navigate('/properties/add')}>
-                      Add Property
+                    <Button variant="primary" onClick={() => navigate(`/properties/${propertyId}/units/add`)}>
+                      Add Unit
                     </Button>
                   )}
                 </div>
@@ -193,63 +202,39 @@ const PropertyList = () => {
                     <Table hover>
                       <thead>
                         <tr>
-                          <th>Property Name</th>
-                          <th>Identifier</th>
-                          <th>Location</th>
-                          <th>Currency</th>
-                          <th>Status</th>
-                          <th>Created</th>
+                          <th>Unit Number</th>
+                          <th>Type</th>
+                          <th>Floor</th>
+                          <th>Monthly Rent</th>
+                          <th>Occupancy Status</th>
+                          <th>Description</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {currentProperties.map((property: Property) => (
-                          <tr key={property.id}>
+                        {currentUnits.map((unit: Unit) => (
+                          <tr key={unit.id}>
                             <td>
-                              <div>
-                                <strong>{property.name}</strong>
-                                <br />
-                                <small className="text-muted">{property.slug}</small>
-                              </div>
-                            </td>
-                            <td>{property.ownerProvidedIdentifier || '-'}</td>
-                            <td>
-                              {property.town}, {property.county}
-                              <br />
-                              <small className="text-muted">
-                                {property.gpsLatitude.toFixed(4)}, {property.gpsLongitude.toFixed(4)}
-                              </small>
+                              <strong>{unit.unitNumber}</strong>
                             </td>
                             <td>
-                              <Badge bg="secondary">{property.baseCurrency}</Badge>
+                              <Badge bg={getUnitTypeBadge(unit.type)}>{formatUnitType(unit.type)}</Badge>
                             </td>
+                            <td>{unit.floor}</td>
+                            <td>KES {unit.monthlyRent.toLocaleString()}</td>
                             <td>
-                              <Badge bg={property.isMarketable ? 'success' : 'warning'}>
-                                {property.isMarketable ? 'Marketable' : 'Not Marketable'}
+                              <Badge bg={unit.isOccupied ? 'success' : 'secondary'}>
+                                {unit.isOccupied ? 'Occupied' : 'Vacant'}
                               </Badge>
                             </td>
-                            <td>{formatDate(property.createdAt)}</td>
+                            <td>
+                              <small className="text-muted">{unit.description || '-'}</small>
+                            </td>
                             <td>
                               <Button
                                 variant="link"
                                 size="sm"
-                                onClick={() => navigate(`/properties/${property.id}`)}
-                                className="p-0 me-2"
-                              >
-                                View
-                              </Button>
-                              <Button
-                                variant="link"
-                                size="sm"
-                                onClick={() => navigate(`/properties/${property.id}/units`)}
-                                className="p-0 me-2"
-                              >
-                                Units
-                              </Button>
-                              <Button
-                                variant="link"
-                                size="sm"
-                                onClick={() => navigate(`/properties/${property.id}/edit`)}
+                                onClick={() => navigate(`/properties/${propertyId}/units/${unit.id}/edit`)}
                                 className="p-0"
                               >
                                 Edit
@@ -271,4 +256,4 @@ const PropertyList = () => {
   );
 };
 
-export default PropertyList;
+export default UnitList;

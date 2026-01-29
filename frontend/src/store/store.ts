@@ -4,6 +4,7 @@ import authReducer from './slices/authSlice';
 import { authApi } from '@/services/api/authApi';
 import { userProfileApi } from '../services/api/userProfileApi';
 import { propertyApi } from '../services/api/propertyApi';
+import { unitApi } from '../services/api/unitApi';
 
 export const store = configureStore({
   reducer: {
@@ -11,9 +12,15 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [userProfileApi.reducerPath]: userProfileApi.reducer,
     [propertyApi.reducerPath]: propertyApi.reducer,
+    [unitApi.reducerPath]: unitApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authApi.middleware, userProfileApi.middleware, propertyApi.middleware),
+    getDefaultMiddleware().concat(
+      authApi.middleware,
+      userProfileApi.middleware,
+      propertyApi.middleware,
+      unitApi.middleware
+    ),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

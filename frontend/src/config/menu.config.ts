@@ -55,48 +55,33 @@ const ADMIN_MENU: MenuItem[] = [
     roles: ['OWNER', 'ADMIN'],
   },
   {
-    label: 'Properties',
-    icon: Building2,
+    label: 'All Properties',
+    link: '/properties',
     roles: ['OWNER', 'ADMIN'],
-    subItems: [
-      {
-        label: 'All Properties',
-        link: '/properties',
-        roles: ['OWNER', 'ADMIN'],
-      },
-      {
-        label: 'Add Property',
-        link: '/properties/add',
-        roles: ['OWNER', 'ADMIN'],
-      },
-      {
-        label: 'Property Settings',
-        link: '/properties/settings',
-        roles: ['OWNER', 'ADMIN'],
-      },
-    ],
+    icon: MapPin,
+  },
+  {
+    label: 'Add Property',
+    link: '/properties/add',
+    roles: ['OWNER', 'ADMIN'],
+    icon: Building2,
   },
   {
     label: 'Units',
-    icon: MapPin,
+    isTitle: true,
     roles: ['OWNER', 'ADMIN'],
-    subItems: [
-      {
-        label: 'All Units',
-        link: '/units',
-        roles: ['OWNER', 'ADMIN'],
-      },
-      {
-        label: 'Unit Pricing',
-        link: '/units/pricing',
-        roles: ['OWNER', 'ADMIN'],
-      },
-      {
-        label: 'Availability',
-        link: '/units/availability',
-        roles: ['OWNER', 'ADMIN'],
-      },
-    ],
+  },
+  {
+    label: 'All Units',
+    link: '/units',
+    icon: Key,
+    roles: ['OWNER', 'ADMIN'],
+  },
+  {
+    label: 'Unit Pricing',
+    icon: DollarSign,
+    link: '/units/pricing',
+    roles: ['OWNER', 'ADMIN'],
   },
   {
     label: 'TENANCY',
