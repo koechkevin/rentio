@@ -12,7 +12,7 @@ import TenancyDetailsCard from './components/TenancyDetailsCard';
 import { useAppSelector } from '@/store/store';
 
 const ProfilePage = () => {
-  const user = useAppSelector((d) => d.auth.user);
+  const user = useAppSelector((state) => state.auth.user);
   const userId = user?.id;
   const [activeTab, setActiveTab] = useState('timeline');
   const {

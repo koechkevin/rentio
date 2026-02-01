@@ -5,6 +5,7 @@ import prisma from "../utils/prisma";
 import { AppError } from "../middleware/errorHandler";
 import { GlobalRole } from "@prisma/client";
 import { sendVerificationEmail } from "../services/email.service";
+import { AuthRequest } from "../middleware/auth";
 
 export const generateVerificationCode = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -290,6 +291,77 @@ export const logout = async (
   try {
     // For stateless JWT, logout can be handled on client side by deleting the token
     res.json({ success: true, message: "Logged out successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getCurrentUser = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.id },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        phone: true,
+        nationalId: true,
+        globalRole: true,
+        status: true,
+        isEmailVerified: true,
+        displayPicture: true,
+        backgroundPicture: true,
+        about: true,
+        website: true,
+        createdAt: true,
+        updatedAt: true,
+        userPropertyRoles: {
+          where: { removedAt: null },
+          select: {
+            propertyId: true,
+            role: true,
+            property: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          phone: user.phone,
+          nationalId: user.nationalId,
+          globalRole: user.globalRole,
+          status: user.status,
+          isEmailVerified: user.isEmailVerified,
+          displayPicture: user.displayPicture,
+          backgroundPicture: user.backgroundPicture,
+          about: user.about,
+          website: user.website,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        },
+        userPropertyRoles: user.userPropertyRoles,
+      },
+    });
   } catch (error) {
     next(error);
   }

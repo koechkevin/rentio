@@ -66,11 +66,15 @@ const authSlice = createSlice({
       localStorage.removeItem('user');
       localStorage.removeItem('isEmailVerified');
     },
+    setUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+      localStorage.setItem('user', JSON.stringify(action.payload));
+    },
     clearError: (state) => {
       // Can add error field if needed
     },
   },
 });
 
-export const { setCredentials, logout, setEmailVerified } = authSlice.actions;
+export const { setCredentials, logout, setEmailVerified, setUser } = authSlice.actions;
 export default authSlice.reducer;

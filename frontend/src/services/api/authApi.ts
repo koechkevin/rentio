@@ -69,9 +69,41 @@ export interface VerifyEmailResponse {
   };
 }
 
+export interface CurrentUserResponse {
+  success: boolean;
+  data: {
+    user: {
+      id: string;
+      fullName: string;
+      email: string;
+      phone: string;
+      nationalId: string;
+      globalRole: string;
+      status: string;
+      isEmailVerified: boolean;
+      displayPicture?: string;
+      backgroundPicture?: string;
+      about?: string;
+      website?: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+    userPropertyRoles: Array<{
+      propertyId: string;
+      role: string;
+      property: {
+        id: string;
+        name: string;
+        slug: string;
+      };
+    }>;
+  };
+}
+
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: baseQueryWithReauth,
+  tagTypes: ['Auth', 'CurrentUser'],
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (credentials) => ({
@@ -114,6 +146,10 @@ export const authApi = createApi({
         method: 'POST',
       }),
     }),
+    getCurrentUser: builder.query<CurrentUserResponse, void>({
+      query: () => '/auth/me',
+      providesTags: ['CurrentUser'],
+    }),
   }),
 });
 
@@ -124,4 +160,5 @@ export const {
   useResendVerificationMutation,
   useRefreshTokenMutation,
   useLogoutMutation,
+  useGetCurrentUserQuery,
 } = authApi;

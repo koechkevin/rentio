@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as authController from "../controllers/auth.controller";
+import { authenticate } from "../middleware/auth";
 
 const router = Router();
 
@@ -170,5 +171,19 @@ router.post("/refresh", authController.refreshToken);
  *         description: Logout successful
  */
 router.post("/logout", authController.logout);
+
+/**
+ * @swagger
+ * /auth/me:
+ *   get:
+ *     summary: Get current user
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user data
+ */
+router.get("/me", authenticate, authController.getCurrentUser);
 
 export default router;

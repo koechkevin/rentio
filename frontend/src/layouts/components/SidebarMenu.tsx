@@ -7,15 +7,16 @@ import MetisMenu from 'metismenujs';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Badge } from 'react-bootstrap';
 import { useAppSelector } from '@/store/store';
+import { useCurrentProperty } from '@/hooks/useCurrentProperty';
 
 const SidebarMenu = () => {
   const location = useLocation(); // Gets the current location object
-  const { user = { globalRole: 'USER' } } = useAppSelector((state) => state.auth);
   const metisMenuRef = useRef<MetisMenu | null>(null);
   const linkElementsRef = useRef<HTMLAnchorElement[]>([]);
   const lastPathnameRef = useRef<string>('');
-
-  const sidebarMenuItems = getMenuByRole(user ? [user?.globalRole] : ['USER']);
+  const { currentProperty } = useCurrentProperty();
+  const userPropertyRoles = currentProperty?.userPropertyRoles?.map((upr) => upr.role) || ['USER'];
+  const sidebarMenuItems = getMenuByRole(userPropertyRoles);
 
   console.log(sidebarMenuItems);
   // Validate menu items to prevent rendering errors

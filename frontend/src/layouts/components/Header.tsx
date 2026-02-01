@@ -26,6 +26,7 @@ import { useThemeMode } from '@/contexts/ThemeModeContext';
 import { useNavigate } from 'react-router';
 import { useGetUserProfileQuery } from '@/services/api/userProfileApi';
 import { useAppSelector } from '@/store/store';
+import PropertySelector from '@/components/PropertySelector';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -57,7 +58,9 @@ const Header = () => {
             alt="logo"
           />
         </div>
-
+        <div className="d-none d-md-flex align-items-center ms-3">
+          <PropertySelector />
+        </div>
         {/* <form className="search-form">
           <div className="input-group">
             <div className="input-group-text">

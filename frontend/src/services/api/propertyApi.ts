@@ -16,6 +16,10 @@ export interface Property {
   isMarketable: boolean;
   createdAt: string;
   updatedAt: string;
+  userPropertyRoles: Array<{
+    userId: string;
+    role: string;
+  }>;
 }
 
 export interface CreatePropertyRequest {
