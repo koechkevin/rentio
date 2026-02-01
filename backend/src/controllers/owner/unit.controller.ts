@@ -2,6 +2,7 @@ import { Response, NextFunction } from "express";
 import prisma from "../../utils/prisma";
 import { AuthRequest } from "../../middleware/auth";
 import { PropertyRole } from "@prisma/client";
+import { AppError } from "../../middleware/errorHandler";
 
 export const createUnit = async (
   req: AuthRequest,
@@ -11,6 +12,28 @@ export const createUnit = async (
   try {
     const { unitNumber, type, monthlyRent, floor, description } = req.body;
 
+    // Check subscription availability
+    const subscription = await prisma.propertySubscription.findUnique({
+      where: { propertyId: req.propertyId! },
+    });
+
+    if (!subscription) {
+      throw new AppError(
+        "No active subscription. Please purchase unit slots first.",
+        403,
+      );
+    }
+
+    const availableUnits = subscription.paidUnits - subscription.usedUnits;
+
+    if (availableUnits <= 0) {
+      throw new AppError(
+        "No available unit slots. Please purchase more slots to add units.",
+        403,
+      );
+    }
+
+    // Create unit
     const unit = await prisma.unit.create({
       data: {
         propertyId: req.propertyId!,
@@ -19,6 +42,14 @@ export const createUnit = async (
         monthlyRent,
         floor,
         description,
+      },
+    });
+
+    // Increment used units
+    await prisma.propertySubscription.update({
+      where: { id: subscription.id },
+      data: {
+        usedUnits: { increment: 1 },
       },
     });
 

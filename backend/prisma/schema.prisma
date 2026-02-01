@@ -159,10 +159,61 @@ model Property {
   userPropertyRoles UserPropertyRole[]
   units             Unit[]
   auditLogs         AuditLog[]
+  subscription      PropertySubscription?
 
   @@index([slug])
   @@index([ownerId])
   @@map("properties")
+}
+
+model PropertySubscription {
+  id                String                 @id @default(uuid())
+  propertyId        String                 @unique @map("property_id")
+  paidUnits         Int                    @default(0) @map("paid_units")
+  usedUnits         Int                    @default(0) @map("used_units")
+  pricePerUnit      Decimal                @default(500) @map("price_per_unit") @db.Decimal(10, 2)
+  currency          String                 @default("KES")
+  status            SubscriptionStatus     @default(ACTIVE)
+  lastPaymentDate   DateTime?              @map("last_payment_date")
+  nextBillingDate   DateTime?              @map("next_billing_date")
+  createdAt         DateTime               @default(now()) @map("created_at")
+  updatedAt         DateTime               @updatedAt @map("updated_at")
+
+  property          Property               @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  payments          SubscriptionPayment[]
+
+  @@index([propertyId])
+  @@index([status])
+  @@map("property_subscriptions")
+}
+
+model SubscriptionPayment {
+  id               String               @id @default(uuid())
+  subscriptionId   String               @map("subscription_id")
+  amount           Decimal              @db.Decimal(12, 2)
+  unitsCount       Int                  @map("units_count")
+  paymentMethod    PaymentMethod        @default(MPESA)
+  reference        String?
+  mpesaReceipt     String?              @map("mpesa_receipt")
+  status           PaymentStatus        @default(PENDING)
+  paidAt           DateTime?            @map("paid_at")
+  validFrom        DateTime             @map("valid_from")
+  validUntil       DateTime             @map("valid_until")
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+
+  subscription     PropertySubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@index([status])
+  @@map("subscription_payments")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  SUSPENDED
+  EXPIRED
+  CANCELLED
 }
 
 model Unit {

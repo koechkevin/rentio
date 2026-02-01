@@ -9,6 +9,7 @@ import * as propertyController from "../controllers/owner/property.controller";
 import * as unitController from "../controllers/owner/unit.controller";
 import * as leaseController from "../controllers/owner/lease.controller";
 import * as roleController from "../controllers/owner/role.controller";
+import * as subscriptionController from "../controllers/owner/subscription.controller";
 
 const router = Router();
 
@@ -101,6 +102,14 @@ router.patch(
   authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
   leaseController.terminateLease,
 );
+
+// Subscription routes
+router.get("/subscription", subscriptionController.getPropertySubscription);
+router.post(
+  "/subscription/payment",
+  subscriptionController.recordSubscriptionPayment,
+);
+router.get("/subscription/check", subscriptionController.checkUnitAvailability);
 
 /**
  * @swagger

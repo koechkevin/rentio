@@ -11,30 +11,17 @@ import SalesChart from './components/SalesChart';
 import StorageChart from './components/StorageChart';
 import InboxPreview from './components/InboxPreview';
 import ProjectsTable from './components/ProjectsTable';
+import { useGetPropertiesQuery } from '../../services/api/propertyApi';
+import OnboardingBanner from '../../components/OnboardingBanner';
 
 const DashboardPage = () => {
-  const [selected, setSelected] = useState<Date>(new Date());
-
-  const handleDateSelect = (date: Date) => {
-    setSelected(date);
-  };
+  const { data: propertiesData, isLoading: isLoadingProperties } = useGetPropertiesQuery();
+  const properties = propertiesData?.data || [];
+  const hasNoProperties = !isLoadingProperties && properties.length === 0;
 
   return (
     <>
-      <div className="d-flex justify-content-between align-items-center flex-wrap grid-margin">
-        <h4 className="mb-3 mb-md-0">Welcome to Dashboard</h4>
-        <div className="d-flex align-items-center flex-wrap text-nowrap">
-          <DatePicker selected={selected} onDateSelect={handleDateSelect} className="w-200px me-2 mb-2 mb-md-0" />
-          <Button variant="outline-primary" className="btn-icon-text me-2 mb-2 mb-md-0">
-            <Printer size={16} className="me-2" />
-            Print
-          </Button>
-          <Button variant="primary" className="btn-icon-text mb-2 mb-md-0">
-            <DownloadCloud size={16} className="me-2" />
-            Download Report
-          </Button>
-        </div>
-      </div>
+      {hasNoProperties && <OnboardingBanner />}
 
       <Row>
         <Col md={4} className="grid-margin stretch-card">

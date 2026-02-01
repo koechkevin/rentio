@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCreateUnitMutation, type UnitType } from '../../../services/api/unitApi';
-import ImageUploader from '../../../components/ImageUploader';
+import { useCheckAvailabilityQuery } from '../../../services/api/subscriptionApi';
+import { AlertCircle } from 'lucide-react';
+import ImageUploader from '@/components/ImageUploader';
 
 const AddUnit = () => {
   const navigate = useNavigate();
@@ -57,6 +59,15 @@ const AddUnit = () => {
     }
   };
 
+  const { data: availabilityData, isLoading: isCheckingAvailability } = useCheckAvailabilityQuery(propertyId!, {
+    skip: !propertyId,
+  });
+
+  const canAddUnit = availabilityData?.data?.canAddUnit ?? false;
+  const availableUnits = availabilityData?.data?.availableUnits ?? 0;
+  const pricePerUnit = availabilityData?.data?.pricePerUnit ?? 500;
+  const currency = availabilityData?.data?.currency ?? 'KES';
+
   return (
     <div>
       <Row>
@@ -69,6 +80,32 @@ const AddUnit = () => {
           </div>
         </Col>
       </Row>
+
+      {!isCheckingAvailability && !canAddUnit && (
+        <Alert variant="warning" className="mb-4">
+          <div className="d-flex align-items-start">
+            <AlertCircle className="me-2 mt-1" size={20} />
+            <div>
+              <Alert.Heading className="h6">Subscription Required</Alert.Heading>
+              <p className="mb-2">
+                You need to purchase unit slots before adding units to this property. Units are charged at {currency}{' '}
+                {pricePerUnit.toLocaleString()} per unit per month.
+              </p>
+              <Button variant="primary" size="sm" onClick={() => navigate(`/properties/${propertyId}/subscription`)}>
+                Purchase Unit Slots
+              </Button>
+            </div>
+          </div>
+        </Alert>
+      )}
+
+      {!isCheckingAvailability && canAddUnit && (
+        <Alert variant="info" className="mb-4">
+          <p className="mb-0">
+            <strong>{availableUnits}</strong> unit slot{availableUnits !== 1 ? 's' : ''} available for this property.
+          </p>
+        </Alert>
+      )}
 
       <Row>
         <Col lg={8}>
@@ -186,7 +223,7 @@ const AddUnit = () => {
                       >
                         Cancel
                       </Button>
-                      <Button type="submit" variant="primary" disabled={isLoading}>
+                      <Button type="submit" variant="primary" disabled={isLoading || !canAddUnit}>
                         {isLoading ? (
                           <>
                             <Spinner
