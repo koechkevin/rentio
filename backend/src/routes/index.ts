@@ -4,6 +4,8 @@ import tenantRoutes from "./tenant.routes";
 import publicRoutes from "./public.routes";
 import { Router } from "express";
 import userProfileRoutes from "./userProfile.routes";
+import uploadRoutes from "./upload.routes";
+import { authenticate } from "../middleware/auth";
 
 const router = Router();
 
@@ -12,5 +14,6 @@ router.use(`/owner`, ownerRoutes);
 router.use(`/tenant`, tenantRoutes);
 router.use(`/public`, publicRoutes);
 router.use(`/user-profile`, userProfileRoutes);
+router.use(`/uploads`, authenticate, uploadRoutes);
 
 export default router;

@@ -77,25 +77,22 @@ export const getProperty = async (
 ) => {
   try {
     const property = await prisma.property.findFirst({
-      where: { id: req.params.id, ownerId: req.user!.id, deletedAt: null },
-      include: {
-        units: true,
-        userPropertyRoles: {
-          where: { removedAt: null },
-          include: {
-            user: { select: { id: true, fullName: true, phone: true } },
-          },
-        },
+      where: {
+        id: req.params.id,
+        ownerId: req.user!.id,
       },
     });
 
     if (!property) {
-      throw new AppError("Property not found", 404);
+      return res.status(404).json({
+        success: false,
+        message: "Property not found",
+      });
     }
 
-    res.json({ success: true, data: property });
+    return res.json({ success: true, data: property });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -105,14 +102,28 @@ export const updateProperty = async (
   next: NextFunction,
 ) => {
   try {
-    const property = await prisma.property.updateMany({
-      where: { id: req.params.id, ownerId: req.user!.id },
+    const property = await prisma.property.findFirst({
+      where: {
+        id: req.params.id,
+        ownerId: req.user!.id,
+      },
+    });
+
+    if (!property) {
+      return res.status(404).json({
+        success: false,
+        message: "Property not found",
+      });
+    }
+
+    const updated = await prisma.property.update({
+      where: { id: req.params.id },
       data: req.body,
     });
 
-    res.json({ success: true, data: property });
+    return res.json({ success: true, data: updated });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 

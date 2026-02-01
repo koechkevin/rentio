@@ -115,6 +115,7 @@ model User {
 
   activities        UserActivity[]
   tenancyAgreements TenancyAgreement[]
+  uploads           Upload[]
   @@map("users")
 }
 
@@ -345,4 +346,36 @@ enum TenancyStatus {
   ACTIVE
   EXPIRED
   TERMINATED
+}
+
+model Upload {
+  id            String         @id @default(uuid())
+  filename      String
+  originalName  String
+  mimeType      String
+  size          Int
+  url           String
+  uploadedById  String
+  uploadedBy    User           @relation(fields: [uploadedById], references: [id])
+  entityUploads EntityUpload[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@map("uploads")
+}
+
+model EntityUpload {
+  id         String   @id @default(uuid())
+  uploadId   String
+  upload     Upload   @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+  entityType String
+  entityId   String
+  isPrimary  Boolean  @default(false)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([uploadId, entityType, entityId])
+  @@index([entityType, entityId])
+  @@map("entity_uploads")
 }

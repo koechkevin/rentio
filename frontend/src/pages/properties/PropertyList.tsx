@@ -233,7 +233,7 @@ const PropertyList = () => {
                               <Button
                                 variant="link"
                                 size="sm"
-                                onClick={() => navigate(`/properties/${property.id}`)}
+                                onClick={() => navigate(`/properties/${property.id}/edit`)}
                                 className="p-0 me-2"
                               >
                                 View
@@ -245,14 +245,6 @@ const PropertyList = () => {
                                 className="p-0 me-2"
                               >
                                 Units
-                              </Button>
-                              <Button
-                                variant="link"
-                                size="sm"
-                                onClick={() => navigate(`/properties/${property.id}/edit`)}
-                                className="p-0"
-                              >
-                                Edit
                               </Button>
                             </td>
                           </tr>

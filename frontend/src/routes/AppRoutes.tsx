@@ -7,6 +7,8 @@ import PropertyList from '@/pages/properties/PropertyList';
 import UnitList from '@/pages/properties/units/UnitList';
 import EditUnit from '@/pages/properties/units/EditUnit';
 import AddUnit from '@/pages/properties/units/AddUnit';
+import UnitsRedirect from '@/pages/properties/units/UnitsRedirect';
+import EditProperty from '@/pages/properties/EditProperty';
 
 const MainLayout = lazy(() => import('@/layouts/MainLayout'));
 const AuthLayout = lazy(() => import('@/layouts/AuthLayout'));
@@ -108,6 +110,8 @@ const AppRoutes = () => {
             />
             <Route path="/properties/add" element={<CreateProperty />} />
             <Route path="/properties" element={<PropertyList />} />
+            <Route path="/properties/:propertyId/edit" element={<EditProperty />} />
+            <Route path="/units" element={<UnitsRedirect />} />
             <Route path="/properties/:propertyId/units" element={<UnitList />} />
             <Route path="/properties/:propertyId/units/add" element={<AddUnit />} />
             <Route path="/properties/:propertyId/units/:unitId/edit" element={<EditUnit />} />

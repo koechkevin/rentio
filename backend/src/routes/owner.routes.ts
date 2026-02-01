@@ -19,7 +19,6 @@ router.post("/properties", propertyController.createProperty);
 router.get("/properties", propertyController.getProperties);
 router.get("/properties/:id", propertyController.getProperty);
 router.put("/properties/:id", propertyController.updateProperty);
-router.get("/properties/:id/dashboard", propertyController.getDashboard);
 
 // Property role management - owner only
 router.post(
@@ -54,6 +53,17 @@ router.get(
     PropertyRole.TENANT,
   ),
   unitController.getUnits,
+);
+
+router.get(
+  "/units/:id",
+  extractPropertyId,
+  authorizeProperty(
+    PropertyRole.OWNER,
+    PropertyRole.CARETAKER,
+    PropertyRole.TENANT,
+  ),
+  unitController.getUnit,
 );
 router.put(
   "/units/:id",

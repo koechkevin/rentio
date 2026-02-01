@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCreateUnitMutation, type UnitType } from '../../../services/api/unitApi';
+import ImageUploader from '../../../components/ImageUploader';
 
 const AddUnit = () => {
   const navigate = useNavigate();
@@ -18,17 +19,9 @@ const AddUnit = () => {
 
   const [validated, setValidated] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [createdUnitId, setCreatedUnitId] = useState<string | null>(null);
 
   const unitTypes: UnitType[] = ['BEDSITTER', 'ONE_BEDROOM', 'TWO_BEDROOM', 'THREE_BEDROOM', 'SHOP', 'OFFICE', 'OTHER'];
-
-  useEffect(() => {
-    if (isSuccess) {
-      setShowSuccess(true);
-      setTimeout(() => {
-        navigate(`/properties/${propertyId}/units`);
-      }, 2000);
-    }
-  }, [isSuccess, navigate, propertyId]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -49,7 +42,7 @@ const AddUnit = () => {
     }
 
     try {
-      await createUnit({
+      const result = await createUnit({
         propertyId: propertyId!,
         unitNumber: formData.unitNumber,
         type: formData.type,
@@ -57,6 +50,8 @@ const AddUnit = () => {
         floor: parseInt(formData.floor),
         description: formData.description || undefined,
       }).unwrap();
+
+      setCreatedUnitId(result.data.id);
     } catch (err) {
       console.error('Failed to create unit:', err);
     }
@@ -81,9 +76,15 @@ const AddUnit = () => {
             <Card.Body>
               <Card.Title className="mb-4">Unit Details</Card.Title>
 
-              {showSuccess && (
+              {showSuccess && !createdUnitId && (
                 <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
                   Unit created successfully! Redirecting...
+                </Alert>
+              )}
+
+              {createdUnitId && (
+                <Alert variant="success">
+                  Unit created successfully! You can now upload images before redirecting...
                 </Alert>
               )}
 
@@ -168,31 +169,46 @@ const AddUnit = () => {
                   />
                 </Form.Group>
 
+                {createdUnitId && (
+                  <div className="mb-3">
+                    <Form.Label>Unit Images</Form.Label>
+                    <ImageUploader entityType="UNIT" entityId={createdUnitId} propertyId={propertyId} maxFiles={10} />
+                  </div>
+                )}
+
                 <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-                  <Button
-                    variant="secondary"
-                    onClick={() => navigate(`/properties/${propertyId}/units`)}
-                    disabled={isLoading}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" variant="primary" disabled={isLoading}>
-                    {isLoading ? (
-                      <>
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          role="status"
-                          aria-hidden="true"
-                          className="me-2"
-                        />
-                        Creating...
-                      </>
-                    ) : (
-                      'Create Unit'
-                    )}
-                  </Button>
+                  {!createdUnitId ? (
+                    <>
+                      <Button
+                        variant="secondary"
+                        onClick={() => navigate(`/properties/${propertyId}/units`)}
+                        disabled={isLoading}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit" variant="primary" disabled={isLoading}>
+                        {isLoading ? (
+                          <>
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              role="status"
+                              aria-hidden="true"
+                              className="me-2"
+                            />
+                            Creating...
+                          </>
+                        ) : (
+                          'Create Unit'
+                        )}
+                      </Button>
+                    </>
+                  ) : (
+                    <Button variant="primary" onClick={() => navigate(`/properties/${propertyId}/units`)}>
+                      Done - Go to Units
+                    </Button>
+                  )}
                 </div>
               </Form>
             </Card.Body>

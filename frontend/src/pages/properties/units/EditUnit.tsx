@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetUnitQuery, useUpdateUnitMutation, type UnitType } from '../../../services/api/unitApi';
+import ImageUploader from '../../../components/ImageUploader';
 
 const EditUnit = () => {
   const navigate = useNavigate();
@@ -197,6 +198,13 @@ const EditUnit = () => {
                     placeholder="Additional details about the unit (optional)"
                   />
                 </Form.Group>
+
+                {unitId && (
+                  <div className="mb-3">
+                    <Form.Label>Unit Images</Form.Label>
+                    <ImageUploader entityType="UNIT" entityId={unitId} propertyId={propertyId} maxFiles={10} />
+                  </div>
+                )}
 
                 <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                   <Button

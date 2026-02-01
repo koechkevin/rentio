@@ -62,6 +62,26 @@ export const getUnits = async (
   }
 };
 
+export const getUnit = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const unit = await prisma.unit.findFirst({
+      where: {
+        id: req.params.id,
+        propertyId: req.propertyId!,
+        deletedAt: null,
+      },
+    });
+
+    res.json({ success: true, data: unit });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateUnit = async (
   req: AuthRequest,
   res: Response,

@@ -28,6 +28,16 @@ export interface CreatePropertyRequest {
   ownerProvidedIdentifier?: string;
 }
 
+export interface UpdatePropertyRequest {
+  name?: string;
+  slug?: string;
+  county?: string;
+  town?: string;
+  gpsLatitude?: number;
+  gpsLongitude?: number;
+  ownerProvidedIdentifier?: string;
+}
+
 export const propertyApi = createApi({
   reducerPath: 'propertyApi',
   baseQuery: baseQueryWithReauth,
@@ -45,7 +55,22 @@ export const propertyApi = createApi({
       query: () => '/owner/properties',
       providesTags: ['Property'],
     }),
+    getProperty: builder.query<{ success: boolean; data: Property }, string>({
+      query: (id) => `/owner/properties/${id}`,
+      providesTags: ['Property'],
+    }),
+    updateProperty: builder.mutation<{ success: boolean; data: Property }, { id: string; data: UpdatePropertyRequest }>(
+      {
+        query: ({ id, data }) => ({
+          url: `/owner/properties/${id}`,
+          method: 'PUT',
+          body: data,
+        }),
+        invalidatesTags: ['Property'],
+      }
+    ),
   }),
 });
 
-export const { useCreatePropertyMutation, useGetPropertiesQuery } = propertyApi;
+export const { useCreatePropertyMutation, useGetPropertiesQuery, useGetPropertyQuery, useUpdatePropertyMutation } =
+  propertyApi;

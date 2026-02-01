@@ -25,7 +25,7 @@ Thumbs.db
 *.swp
 *.swo
 
-# Uploads
+# Uploads (using Cloudinary, but keep for temporary files)
 uploads/
 
 # Prisma

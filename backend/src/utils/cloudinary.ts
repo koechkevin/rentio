@@ -9,11 +9,12 @@ cloudinary.config({
 
 export const uploadToCloudinary = (
   file: Express.Multer.File,
+  folder: string = "uploads",
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        folder: "user-profiles",
+        folder,
         resource_type: "auto",
       },
       (error, result) => {
@@ -27,4 +28,19 @@ export const uploadToCloudinary = (
 
     streamifier.createReadStream(file.buffer).pipe(uploadStream);
   });
+};
+
+export const deleteFromCloudinary = async (url: string): Promise<void> => {
+  try {
+    // Extract public_id from Cloudinary URL
+    const urlParts = url.split("/");
+    const filename = urlParts[urlParts.length - 1];
+    const publicId = filename.split(".")[0];
+    const folder = urlParts[urlParts.length - 2];
+
+    await cloudinary.uploader.destroy(`${folder}/${publicId}`);
+  } catch (error) {
+    console.error("Error deleting from Cloudinary:", error);
+    throw error;
+  }
 };

@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Row, Col, Card, Form, Button, Alert, Spinner, InputGroup, ListGroup } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useCreatePropertyMutation } from '../../services/api/propertyApi';
+import { useGetPropertyQuery, useUpdatePropertyMutation } from '../../services/api/propertyApi';
 import L from 'leaflet';
 import ImageUploader from '../../components/ImageUploader';
+import { Card as BCard, Table, Badge as BBadge } from 'react-bootstrap';
+import { useGetUnitsQuery } from '../../services/api/unitApi';
 
 // Fix for default marker icon
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -46,9 +48,11 @@ const MapClickHandler = ({ onLocationSelect }: MapClickHandlerProps) => {
   return null;
 };
 
-const CreateProperty = () => {
+const EditProperty = () => {
   const navigate = useNavigate();
-  const [createProperty, { isLoading, isSuccess, error }] = useCreatePropertyMutation();
+  const { propertyId } = useParams<{ propertyId: string }>();
+  const { data: propertyData, isLoading: isLoadingProperty } = useGetPropertyQuery(propertyId!, { skip: !propertyId });
+  const [updateProperty, { isLoading, isSuccess, error }] = useUpdatePropertyMutation();
 
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -60,14 +64,13 @@ const CreateProperty = () => {
     ownerProvidedIdentifier: '',
   });
 
-  const [markerPosition, setMarkerPosition] = useState<LatLng | null>(new LatLng(-1.286389, 36.817223));
+  const [markerPosition, setMarkerPosition] = useState<LatLng | null>(null);
   const [validated, setValidated] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>([-1.286389, 36.817223]);
-  const [createdPropertyId, setCreatedPropertyId] = useState<string | null>(null);
 
   // Generate slug from name
   const generateSlug = (name: string): string => {
@@ -79,6 +82,24 @@ const CreateProperty = () => {
       .replace(/^-+|-+$/g, '');
   };
 
+  // Load property data
+  useEffect(() => {
+    if (propertyData?.data) {
+      const property = propertyData.data;
+      setFormData({
+        name: property.name,
+        slug: property.slug,
+        county: property.county,
+        town: property.town,
+        gpsLatitude: property.gpsLatitude,
+        gpsLongitude: property.gpsLongitude,
+        ownerProvidedIdentifier: property.ownerProvidedIdentifier || '',
+      });
+      setMarkerPosition(new LatLng(property.gpsLatitude, property.gpsLongitude));
+      setMapCenter([property.gpsLatitude, property.gpsLongitude]);
+    }
+  }, [propertyData]);
+
   useEffect(() => {
     if (formData.name) {
       setFormData((prev) => ({
@@ -87,6 +108,15 @@ const CreateProperty = () => {
       }));
     }
   }, [formData.name]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      setShowSuccess(true);
+      setTimeout(() => {
+        navigate('/properties');
+      }, 2000);
+    }
+  }, [isSuccess, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -116,20 +146,20 @@ const CreateProperty = () => {
     }
 
     try {
-      const result: any = await createProperty({
-        name: formData.name,
-        slug: formData.slug,
-        county: formData.county,
-        town: formData.town,
-        gpsLatitude: formData.gpsLatitude,
-        gpsLongitude: formData.gpsLongitude,
-        ownerProvidedIdentifier: formData.ownerProvidedIdentifier || undefined,
+      await updateProperty({
+        id: propertyId!,
+        data: {
+          name: formData.name,
+          slug: formData.slug,
+          county: formData.county,
+          town: formData.town,
+          gpsLatitude: formData.gpsLatitude,
+          gpsLongitude: formData.gpsLongitude,
+          ownerProvidedIdentifier: formData.ownerProvidedIdentifier || undefined,
+        },
       }).unwrap();
-
-      setCreatedPropertyId(result.data.id);
-      setShowSuccess(true);
     } catch (err) {
-      console.error('Failed to create property:', err);
+      console.error('Failed to update property:', err);
     }
   };
 
@@ -160,12 +190,41 @@ const CreateProperty = () => {
     setSearchResults([]);
   };
 
+  const { data: unitsData, isLoading: isLoadingUnits } = useGetUnitsQuery(propertyId!, { skip: !propertyId });
+  const units = unitsData?.data || [];
+
+  const getUnitTypeBadge = (type: string) => {
+    const colors: Record<string, string> = {
+      BEDSITTER: 'primary',
+      ONE_BEDROOM: 'info',
+      TWO_BEDROOM: 'success',
+      THREE_BEDROOM: 'warning',
+      SHOP: 'secondary',
+      OFFICE: 'dark',
+      OTHER: 'light',
+    };
+    return colors[type] || 'secondary';
+  };
+
+  const formatUnitType = (type: string) => {
+    return type.replace(/_/g, ' ');
+  };
+
+  if (isLoadingProperty) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
+  }
   return (
     <div>
       <Row>
         <Col xs={12}>
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="mb-0">Add New Property</h4>
+            <h4 className="mb-0">Edit Property</h4>
             <Button variant="secondary" onClick={() => navigate('/properties')}>
               Back to Properties
             </Button>
@@ -179,19 +238,13 @@ const CreateProperty = () => {
             <Card.Body>
               <Card.Title className="mb-4">Property Details</Card.Title>
 
-              {showSuccess && !createdPropertyId && (
+              {showSuccess && (
                 <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
-                  Property created successfully! Redirecting...
+                  Property updated successfully! Redirecting...
                 </Alert>
               )}
 
-              {createdPropertyId && (
-                <Alert variant="success">
-                  Property created successfully! You can now upload images before redirecting...
-                </Alert>
-              )}
-
-              {error && <Alert variant="danger">Failed to create property. Please try again.</Alert>}
+              {error && <Alert variant="danger">Failed to update property. Please try again.</Alert>}
 
               <Form noValidate validated={validated} onSubmit={handleSubmit}>
                 <Row>
@@ -302,42 +355,34 @@ const CreateProperty = () => {
                   </Col>
                 </Row>
 
-                {createdPropertyId && (
+                {propertyId && (
                   <div className="mb-3">
                     <Form.Label>Property Images</Form.Label>
-                    <ImageUploader entityType="PROPERTY" entityId={createdPropertyId} maxFiles={15} />
+                    <ImageUploader entityType="PROPERTY" entityId={propertyId} maxFiles={15} />
                   </div>
                 )}
 
                 <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-                  {!createdPropertyId ? (
-                    <>
-                      <Button variant="secondary" onClick={() => navigate('/properties')} disabled={isLoading}>
-                        Cancel
-                      </Button>
-                      <Button type="submit" variant="primary" disabled={isLoading}>
-                        {isLoading ? (
-                          <>
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              role="status"
-                              aria-hidden="true"
-                              className="me-2"
-                            />
-                            Creating...
-                          </>
-                        ) : (
-                          'Create Property'
-                        )}
-                      </Button>
-                    </>
-                  ) : (
-                    <Button variant="primary" onClick={() => navigate('/properties')}>
-                      Done - Go to Properties
-                    </Button>
-                  )}
+                  <Button variant="secondary" onClick={() => navigate('/properties')} disabled={isLoading}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" variant="primary" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                          className="me-2"
+                        />
+                        Updating...
+                      </>
+                    ) : (
+                      'Update Property'
+                    )}
+                  </Button>
                 </div>
               </Form>
             </Card.Body>
@@ -348,7 +393,6 @@ const CreateProperty = () => {
           <Card>
             <Card.Body>
               <Card.Title className="mb-3">Select Location</Card.Title>
-              <p className="text-muted small mb-3">Click on the map to set the property location</p>
               <Form.Group className="mb-3">
                 <InputGroup>
                   <Form.Control
@@ -384,6 +428,7 @@ const CreateProperty = () => {
                 </ListGroup>
               )}
 
+              <p className="text-muted small mb-3">Search or click on the map to update the property location</p>
               <div style={{ height: '400px', borderRadius: '8px', overflow: 'hidden' }}>
                 <MapContainer
                   center={mapCenter}
@@ -412,8 +457,119 @@ const CreateProperty = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* Units Section */}
+      {propertyId && (
+        <Row className="mt-4">
+          <Col xs={12}>
+            <BCard>
+              <BCard.Body>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <div>
+                    <h5 className="mb-1">Property Units</h5>
+                    <p className="text-muted mb-0 small">Manage units for this property</p>
+                  </div>
+                  <Button variant="primary" size="sm" onClick={() => navigate(`/properties/${propertyId}/units/add`)}>
+                    <i className="bi bi-plus-circle me-2"></i>
+                    Add Unit
+                  </Button>
+                </div>
+
+                {isLoadingUnits ? (
+                  <div className="text-center py-4">
+                    <Spinner animation="border" size="sm" />
+                    <p className="text-muted mt-2 mb-0">Loading units...</p>
+                  </div>
+                ) : units.length === 0 ? (
+                  <div className="text-center py-5">
+                    <i className="bi bi-door-closed" style={{ fontSize: '3rem', color: '#ccc' }}></i>
+                    <h6 className="mt-3">No units found</h6>
+                    <p className="text-muted mb-3">Get started by adding your first unit to this property</p>
+                    <Button variant="primary" size="sm" onClick={() => navigate(`/properties/${propertyId}/units/add`)}>
+                      Add Unit
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="table-responsive">
+                      <Table hover>
+                        <thead>
+                          <tr>
+                            <th>Unit Number</th>
+                            <th>Type</th>
+                            <th>Floor</th>
+                            <th>Monthly Rent</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {units.slice(0, 5).map((unit: any) => (
+                            <tr key={unit.id}>
+                              <td>
+                                <strong>{unit.unitNumber}</strong>
+                              </td>
+                              <td>
+                                <BBadge bg={getUnitTypeBadge(unit.type)}>{formatUnitType(unit.type)}</BBadge>
+                              </td>
+                              <td>{unit.floor}</td>
+                              <td>KES {unit.monthlyRent.toLocaleString()}</td>
+                              <td>
+                                <BBadge bg={unit.isOccupied ? 'success' : 'secondary'}>
+                                  {unit.isOccupied ? 'Occupied' : 'Vacant'}
+                                </BBadge>
+                              </td>
+                              <td>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  onClick={() => navigate(`/properties/${propertyId}/units/${unit.id}/edit`)}
+                                  className="p-0"
+                                >
+                                  Edit
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    </div>
+                    {units.length > 5 && (
+                      <div className="text-center mt-3">
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={() => navigate(`/properties/${propertyId}/units`)}
+                        >
+                          View All Units ({units.length})
+                        </Button>
+                      </div>
+                    )}
+                    <div className="mt-3 pt-3" style={{ borderTop: '1px solid #dee2e6' }}>
+                      <Row>
+                        <Col xs={4}>
+                          <small className="text-muted">Total Units</small>
+                          <h6>{units.length}</h6>
+                        </Col>
+                        <Col xs={4}>
+                          <small className="text-muted">Occupied</small>
+                          <h6 className="text-success">{units.filter((u: any) => u.isOccupied).length}</h6>
+                        </Col>
+                        <Col xs={4}>
+                          <small className="text-muted">Vacant</small>
+                          <h6 className="text-warning">{units.filter((u: any) => !u.isOccupied).length}</h6>
+                        </Col>
+                      </Row>
+                    </div>
+                  </>
+                )}
+              </BCard.Body>
+            </BCard>
+          </Col>
+        </Row>
+      )}
     </div>
   );
 };
 
-export default CreateProperty;
+export default EditProperty;

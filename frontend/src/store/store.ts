@@ -5,21 +5,26 @@ import { authApi } from '@/services/api/authApi';
 import { userProfileApi } from '../services/api/userProfileApi';
 import { propertyApi } from '../services/api/propertyApi';
 import { unitApi } from '../services/api/unitApi';
+import { uploadApi } from '../services/api/uploadApi';
+import propertyReducer from './slices/propertySlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    property: propertyReducer,
     [authApi.reducerPath]: authApi.reducer,
     [userProfileApi.reducerPath]: userProfileApi.reducer,
     [propertyApi.reducerPath]: propertyApi.reducer,
     [unitApi.reducerPath]: unitApi.reducer,
+    [uploadApi.reducerPath]: uploadApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       authApi.middleware,
       userProfileApi.middleware,
       propertyApi.middleware,
-      unitApi.middleware
+      unitApi.middleware,
+      uploadApi.middleware
     ),
 });
 

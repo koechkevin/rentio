@@ -1,13 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Row, Col, Card, Table, Badge, Button, Spinner, Alert, Form, InputGroup } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetUnitsQuery, type Unit } from '../../../services/api/unitApi';
+import { useDispatch } from 'react-redux';
+import { setCurrentProperty } from '../../../store/slices/propertySlice';
 
 const UnitList = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { propertyId } = useParams<{ propertyId: string }>();
   const { data, isLoading, error, refetch } = useGetUnitsQuery(propertyId!, { skip: !propertyId });
   const units = data?.data ?? [];
+
+  useEffect(() => {
+    if (propertyId) {
+      dispatch(setCurrentProperty(propertyId));
+    }
+  }, [propertyId, dispatch]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
