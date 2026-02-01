@@ -11,16 +11,6 @@ import * as issueController from "../controllers/tenant/issue.controller";
 
 const router = Router();
 
-router.use(authenticate);
-router.use(extractPropertyId);
-router.use(
-  authorizeProperty(
-    PropertyRole.TENANT,
-    PropertyRole.CARETAKER,
-    PropertyRole.OWNER,
-  ),
-);
-
 /**
  * @swagger
  * /tenant/lease:
@@ -35,7 +25,17 @@ router.use(
  *       404:
  *         description: No active lease found
  */
-router.get("/lease", leaseController.getCurrentLease);
+router.get(
+  "/lease",
+  authenticate,
+  extractPropertyId,
+  authorizeProperty(
+    PropertyRole.TENANT,
+    PropertyRole.CARETAKER,
+    PropertyRole.OWNER,
+  ),
+  leaseController.getCurrentLease,
+);
 
 /**
  * @swagger
@@ -65,7 +65,17 @@ router.get("/lease", leaseController.getCurrentLease);
  *       400:
  *         description: Invalid amount
  */
-router.post("/payments/initiate", paymentController.initiatePayment);
+router.post(
+  "/payments/initiate",
+  authenticate,
+  extractPropertyId,
+  authorizeProperty(
+    PropertyRole.TENANT,
+    PropertyRole.CARETAKER,
+    PropertyRole.OWNER,
+  ),
+  paymentController.initiatePayment,
+);
 
 /**
  * @swagger
@@ -96,7 +106,17 @@ router.post("/payments/initiate", paymentController.initiatePayment);
  *       200:
  *         description: List of payments
  */
-router.get("/payments", paymentController.getPayments);
+router.get(
+  "/payments",
+  authenticate,
+  extractPropertyId,
+  authorizeProperty(
+    PropertyRole.TENANT,
+    PropertyRole.CARETAKER,
+    PropertyRole.OWNER,
+  ),
+  paymentController.getPayments,
+);
 
 /**
  * @swagger
@@ -129,7 +149,7 @@ router.get("/payments", paymentController.getPayments);
  *       400:
  *         description: Validation error
  */
-router.post("/issues", issueController.createIssue);
+router.post("/issues", authenticate, issueController.createIssue);
 
 /**
  * @swagger
@@ -154,7 +174,7 @@ router.post("/issues", issueController.createIssue);
  *       200:
  *         description: List of issues
  */
-router.get("/issues", issueController.getIssues);
+router.get("/issues", authenticate, issueController.getTenantIssues);
 
 /**
  * @swagger
@@ -177,6 +197,30 @@ router.get("/issues", issueController.getIssues);
  *       404:
  *         description: Issue not found
  */
-router.get("/issues/:id", issueController.getIssue);
+router.get(
+  "/issues/:id",
+  authenticate,
+  extractPropertyId,
+  authorizeProperty(
+    PropertyRole.TENANT,
+    PropertyRole.CARETAKER,
+    PropertyRole.OWNER,
+  ),
+  issueController.getIssue,
+);
+
+/**
+ * @swagger
+ * /tenant/leases:
+ *   get:
+ *     summary: Get all leases for tenant
+ *     tags: [Tenant - Leases]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of leases
+ */
+router.get("/leases", authenticate, leaseController.getUserLeases);
 
 export default router;

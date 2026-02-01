@@ -8,13 +8,27 @@ export interface Unit {
   propertyId: string;
   unitNumber: string;
   type: UnitType;
-  monthlyRent: number;
+  monthlyRent: string;
   floor: number;
   description?: string;
   isOccupied: boolean;
   currentTenantId?: string;
   createdAt: string;
   updatedAt: string;
+  status: string;
+  leases?: Array<{
+    id: string;
+    active: boolean;
+    deposit: string;
+    leaseStart: string;
+    leaseEnd?: string;
+    agreedRent: string;
+    user: {
+      id: string;
+      fullName: string;
+      phone: string;
+    };
+  }>;
 }
 
 export interface CreateUnitRequest {

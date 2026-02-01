@@ -59,6 +59,19 @@ const UnitList = () => {
     return type.replace(/_/g, ' ');
   };
 
+  const getActiveLease = (unit: Unit) => {
+    return unit.leases?.find((lease) => lease.active);
+  };
+
+  const isUnitOccupied = (unit: Unit) => {
+    return !!getActiveLease(unit);
+  };
+
+  const getCurrentOccupant = (unit: Unit) => {
+    const activeLease = getActiveLease(unit);
+    return activeLease?.user.fullName || null;
+  };
+
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
@@ -216,41 +229,58 @@ const UnitList = () => {
                           <th>Floor</th>
                           <th>Monthly Rent</th>
                           <th>Occupancy Status</th>
-                          <th>Description</th>
+                          <th>Current Occupant</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {currentUnits.map((unit: Unit) => (
-                          <tr key={unit.id}>
-                            <td>
-                              <strong>{unit.unitNumber}</strong>
-                            </td>
-                            <td>
-                              <Badge bg={getUnitTypeBadge(unit.type)}>{formatUnitType(unit.type)}</Badge>
-                            </td>
-                            <td>{unit.floor}</td>
-                            <td>KES {unit.monthlyRent.toLocaleString()}</td>
-                            <td>
-                              <Badge bg={unit.isOccupied ? 'success' : 'secondary'}>
-                                {unit.isOccupied ? 'Occupied' : 'Vacant'}
-                              </Badge>
-                            </td>
-                            <td>
-                              <small className="text-muted">{unit.description || '-'}</small>
-                            </td>
-                            <td>
-                              <Button
-                                variant="link"
-                                size="sm"
-                                onClick={() => navigate(`/properties/${propertyId}/units/${unit.id}/edit`)}
-                                className="p-0"
-                              >
-                                Edit
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
+                        {currentUnits.map((unit: Unit) => {
+                          const occupied = isUnitOccupied(unit);
+                          const occupant = getCurrentOccupant(unit);
+
+                          return (
+                            <tr key={unit.id}>
+                              <td>
+                                <strong>{unit.unitNumber}</strong>
+                              </td>
+                              <td>
+                                <Badge bg={getUnitTypeBadge(unit.type)}>{formatUnitType(unit.type)}</Badge>
+                              </td>
+                              <td>{unit.floor}</td>
+                              <td>KES {unit.monthlyRent.toLocaleString()}</td>
+                              <td>
+                                <Badge bg={occupied ? 'success' : 'secondary'}>
+                                  {occupied ? 'Occupied' : 'Vacant'}
+                                </Badge>
+                              </td>
+                              <td>
+                                {occupant ? (
+                                  <span>{occupant}</span>
+                                ) : (
+                                  <Button
+                                    variant="link"
+                                    size="sm"
+                                    className="p-0"
+                                    onClick={() => navigate(`/properties/${propertyId}/units/${unit.id}/add-tenant`)}
+                                  >
+                                    <i className="bi bi-person-plus me-1"></i>
+                                    Add Tenant
+                                  </Button>
+                                )}
+                              </td>
+                              <td>
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  onClick={() => navigate(`/properties/${propertyId}/units/${unit.id}/edit`)}
+                                  className="p-0"
+                                >
+                                  Edit
+                                </Button>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </Table>
                   </div>

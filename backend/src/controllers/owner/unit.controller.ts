@@ -48,7 +48,6 @@ export const getUnits = async (
 
     // Filter units based on property role
     let filteredUnits = units;
-
     if (req.propertyRole === PropertyRole.TENANT) {
       // Tenants only see their own units
       filteredUnits = units.filter((unit: any) =>
@@ -73,6 +72,14 @@ export const getUnit = async (
         id: req.params.id,
         propertyId: req.propertyId!,
         deletedAt: null,
+      },
+      include: {
+        leases: {
+          where: { active: true },
+          include: {
+            user: { select: { id: true, fullName: true, phone: true } },
+          },
+        },
       },
     });
 

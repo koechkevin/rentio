@@ -24,6 +24,7 @@
     "@uiw/react-color": "^2.6.0",
     "apexcharts": "^4.7.0",
     "bootstrap": "^5.3.7",
+    "bootstrap-icons": "^1.11.3",
     "chart.js": "^4.5.0",
     "clsx": "^2.1.1",
     "highlight.js": "^11.11.1",

@@ -132,10 +132,19 @@ export class UserProfileController {
       const { userId } = req.params;
       const limit = parseInt(req.query.limit as string) || 50;
 
-      const uploads = await prisma.userActivity.findMany({
+      const uploads = await prisma.upload.findMany({
         where: {
-          userId,
-          activityType: "DOCUMENT_UPLOAD",
+          uploadedById: userId,
+        },
+        include: {
+          entityUploads: {
+            select: {
+              entityType: true,
+              entityId: true,
+              isPrimary: true,
+              order: true,
+            },
+          },
         },
         orderBy: { createdAt: "desc" },
         take: limit,

@@ -1,6 +1,6 @@
-import { API_CONFIG } from '@/config/api';
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQueryWithReauth } from './baseQueryWithReauth';
+import { getUserIdFromToken } from '../../utils/jwt';
 
 interface UserProfile {
   _id: string;
@@ -9,6 +9,7 @@ interface UserProfile {
   about?: string;
   website?: string;
   email: string;
+  fullName: string;
 }
 
 interface UserActivity {
@@ -27,11 +28,24 @@ interface TenancyAgreement {
   status: string;
 }
 
+interface EntityUpload {
+  entityType: string;
+  entityId: string;
+  isPrimary: boolean;
+  order: number;
+}
+
 interface Upload {
-  _id: string;
-  description: string;
-  metadata?: { fileName?: string; fileUrl?: string };
+  id: string;
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  url: string;
+  uploadedById: string;
   createdAt: string;
+  updatedAt: string;
+  entityUploads: EntityUpload[];
 }
 
 export const userProfileApi = createApi({
@@ -39,32 +53,52 @@ export const userProfileApi = createApi({
   baseQuery: baseQueryWithReauth,
   tagTypes: ['UserProfile', 'UserActivity', 'TenancyAgreement', 'Uploads'],
   endpoints: (builder) => ({
-    getUserProfile: builder.query<UserProfile, string>({
-      query: (userId) => `/user-profile/${userId}`,
+    getUserProfile: builder.query<UserProfile, string | void>({
+      query: (userId) => {
+        const id = userId || getUserIdFromToken();
+        if (!id) throw new Error('User ID not found');
+        return `/user-profile/${id}`;
+      },
       providesTags: ['UserProfile'],
     }),
-    updateUserProfile: builder.mutation<UserProfile, { userId: string; data: FormData }>({
-      query: ({ userId, data }) => ({
-        url: `/user-profile/${userId}`,
-        method: 'PUT',
-        body: data,
-      }),
+    updateUserProfile: builder.mutation<UserProfile, { userId?: string; data: FormData }>({
+      query: ({ userId, data }) => {
+        const id = userId || getUserIdFromToken();
+        if (!id) throw new Error('User ID not found');
+        return {
+          url: `/user-profile/${id}`,
+          method: 'PUT',
+          body: data,
+        };
+      },
       invalidatesTags: ['UserProfile'],
     }),
-    getUserActivities: builder.query<UserActivity[], string>({
-      query: (userId) => `/user-profile/${userId}/activities`,
+    getUserActivities: builder.query<UserActivity[], string | void>({
+      query: (userId) => {
+        const id = userId || getUserIdFromToken();
+        if (!id) throw new Error('User ID not found');
+        return `/user-profile/${id}/activities`;
+      },
       providesTags: ['UserActivity'],
     }),
-    getTenancyAgreement: builder.query<TenancyAgreement, string>({
-      query: (userId) => `/user-profile/${userId}/tenancy`,
+    getTenancyAgreement: builder.query<TenancyAgreement, string | void>({
+      query: (userId) => {
+        const id = userId || getUserIdFromToken();
+        if (!id) throw new Error('User ID not found');
+        return `/user-profile/${id}/tenancy`;
+      },
       providesTags: ['TenancyAgreement'],
     }),
-    getUserUploads: builder.query<Upload[], string>({
-      query: (userId) => `/user-profile/${userId}/uploads`,
+    getUserUploads: builder.query<Upload[], string | void>({
+      query: (userId) => {
+        const id = userId || getUserIdFromToken();
+        if (!id) throw new Error('User ID not found');
+        return `/user-profile/${id}/uploads`;
+      },
       providesTags: ['Uploads'],
     }),
     getTenantIssues: builder.query({
-      query: (userId: string) => `/tenant/issues?userId=${userId}&status=unresolved&limit=10`,
+      query: (userId?: string) => '/tenant/issues',
     }),
   }),
 });

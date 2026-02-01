@@ -23,3 +23,42 @@ export const getCurrentLease = async (
     next(error);
   }
 };
+
+export const getUserLeases = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const leases = await prisma.lease.findMany({
+      where: { userId: req.user!.id },
+      include: {
+        unit: {
+          include: {
+            property: {
+              select: {
+                id: true,
+                name: true,
+                county: true,
+                town: true,
+              },
+            },
+          },
+        },
+        payments: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 5,
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.json({ success: true, data: leases });
+  } catch (error) {
+    next(error);
+  }
+};

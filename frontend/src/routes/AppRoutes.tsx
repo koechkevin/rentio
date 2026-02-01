@@ -9,6 +9,7 @@ import EditUnit from '@/pages/properties/units/EditUnit';
 import AddUnit from '@/pages/properties/units/AddUnit';
 import UnitsRedirect from '@/pages/properties/units/UnitsRedirect';
 import EditProperty from '@/pages/properties/EditProperty';
+import AddTenant from '@/pages/properties/units/AddTenant';
 
 const MainLayout = lazy(() => import('@/layouts/MainLayout'));
 const AuthLayout = lazy(() => import('@/layouts/AuthLayout'));
@@ -115,6 +116,7 @@ const AppRoutes = () => {
             <Route path="/properties/:propertyId/units" element={<UnitList />} />
             <Route path="/properties/:propertyId/units/add" element={<AddUnit />} />
             <Route path="/properties/:propertyId/units/:unitId/edit" element={<EditUnit />} />
+            <Route path="/properties/:propertyId/units/:unitId/add-tenant" element={<AddTenant />} />
             {/* <Route path="apps/calendar" element={<CalendarPage />} />
             <Route path="apps/chat" element={<ChatPage />} /> */}
             {/* <Route element={<EmailLayout />}>

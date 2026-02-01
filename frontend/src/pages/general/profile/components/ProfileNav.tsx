@@ -1,5 +1,5 @@
 import React from 'react';
-import { Columns, UserIcon, Users, ImageIcon, Video } from 'lucide-react';
+import { Columns } from 'lucide-react';
 import { Link } from 'react-router';
 
 const ProfileNav = () => (

@@ -72,22 +72,32 @@ router.put(
   unitController.updateUnit,
 );
 
-// Lease routes - owner and caretaker
+// Lease routes
 router.post(
   "/leases",
-  extractPropertyId,
   authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
-  leaseController.createLease,
+  leaseController.createLeaseWithTenant,
 );
 router.get(
   "/leases",
-  extractPropertyId,
-  authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
-  leaseController.getLeases,
+  authorizeProperty(
+    PropertyRole.OWNER,
+    PropertyRole.CARETAKER,
+    PropertyRole.TENANT,
+  ),
+  leaseController.getPropertyLeases,
 );
-router.post(
+router.get(
+  "/leases/:id",
+  authorizeProperty(
+    PropertyRole.OWNER,
+    PropertyRole.CARETAKER,
+    PropertyRole.TENANT,
+  ),
+  leaseController.getLease,
+);
+router.patch(
   "/leases/:id/terminate",
-  extractPropertyId,
   authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
   leaseController.terminateLease,
 );

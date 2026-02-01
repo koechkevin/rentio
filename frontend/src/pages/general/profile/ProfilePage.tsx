@@ -1,25 +1,25 @@
 import { useState } from 'react';
 import { Row, Col, Card, Nav, Tab } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
 import { useGetUserProfileQuery } from '../../../services/api/userProfileApi';
 import ProfileHeader from './components/ProfileHeader';
 import ProfileNav from './components/ProfileNav';
 import ProfileAbout from './components/ProfileAbout';
 import ProfileTimeline from './components/ProfileTimeline';
 import ProfileUploads from './components/ProfileUploads';
-import ProfilePhotos from './components/ProfilePhotos';
-import ProfileSuggestions from './components/ProfileSuggestions';
 import TenancyDetails from './components/TenancyDetails';
 import ProfileIssues from './components/ProfileIssues';
+import TenancyDetailsCard from './components/TenancyDetailsCard';
+import { useAppSelector } from '@/store/store';
 
 const ProfilePage = () => {
-  const userId = '1cd20bfe-e407-497b-b45d-e0e8f7545af9';
+  const user = useAppSelector((d) => d.auth.user);
+  const userId = user?.id;
   const [activeTab, setActiveTab] = useState('timeline');
   const {
     data: userProfile,
     isLoading,
     error,
-  } = useGetUserProfileQuery(userId || '', {
+  } = useGetUserProfileQuery('', {
     skip: !userId,
   });
 
@@ -57,6 +57,9 @@ const ProfilePage = () => {
                   <Nav.Item>
                     <Nav.Link eventKey="uploads">Uploads</Nav.Link>
                   </Nav.Item>
+                  <Nav.Item>
+                    <Nav.Link eventKey="issues">Issues</Nav.Link>
+                  </Nav.Item>
                 </Nav>
                 <Tab.Content>
                   <Tab.Pane eventKey="timeline">
@@ -65,6 +68,9 @@ const ProfilePage = () => {
                   <Tab.Pane eventKey="uploads">
                     <ProfileUploads userId={userId!} />
                   </Tab.Pane>
+                  <Tab.Pane eventKey="issues">
+                    <ProfileIssues userId={userId!} />
+                  </Tab.Pane>
                 </Tab.Content>
               </Tab.Container>
             </Card.Body>
@@ -72,12 +78,11 @@ const ProfilePage = () => {
         </Col>
         {/* middle wrapper end */}
         {/* right wrapper start */}
-        <Col xl={3} className="d-none d-xl-block">
+        <Col xl={3} className="d-xl-block">
           <Row>
             <Col md={12} className="grid-margin">
-              <ProfileIssues userId={userId!} />
+              <TenancyDetailsCard />
             </Col>
-            <Col md={12} className="grid-margin"></Col>
           </Row>
         </Col>
         {/* right wrapper end */}

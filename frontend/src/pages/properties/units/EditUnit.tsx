@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
+import { Row, Col, Card, Form, Button, Alert, Spinner, Badge } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetUnitQuery, useUpdateUnitMutation, type UnitType } from '../../../services/api/unitApi';
 import ImageUploader from '../../../components/ImageUploader';
@@ -81,6 +81,24 @@ const EditUnit = () => {
     } catch (err) {
       console.error('Failed to update unit:', err);
     }
+  };
+
+  const getActiveLease = (): any => {
+    return unitData?.data?.leases?.find((lease: any) => lease.active);
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const formatCurrency = (amount?: string) => {
+    if (!amount) return '0';
+    return parseFloat(amount.toString()).toLocaleString();
   };
 
   if (isLoadingUnit) {
@@ -235,6 +253,137 @@ const EditUnit = () => {
               </Form>
             </Card.Body>
           </Card>
+        </Col>
+        <Col lg={4}>
+          {unitData?.data && (
+            <>
+              <Card className="mb-3">
+                <Card.Body>
+                  <h6 className="card-title mb-3">Unit Information</h6>
+                  <div className="mb-2">
+                    <small className="text-muted">Unit Number</small>
+                    <div>
+                      <strong>{unitData.data.unitNumber}</strong>
+                    </div>
+                  </div>
+                  <div className="mb-2">
+                    <small className="text-muted">Type</small>
+                    <div>{unitData.data.type.replace(/_/g, ' ')}</div>
+                  </div>
+                  <div className="mb-2">
+                    <small className="text-muted">Floor</small>
+                    <div>{unitData.data.floor}</div>
+                  </div>
+                  <div className="mb-2">
+                    <small className="text-muted">Standard Rent</small>
+                    <div>KES {formatCurrency(unitData.data.monthlyRent)}</div>
+                  </div>
+                  <div className="mb-2">
+                    <small className="text-muted">Status</small>
+                    <div>
+                      <Badge bg={unitData.data.status === 'OCCUPIED' ? 'success' : 'secondary'}>
+                        {unitData.data.status}
+                      </Badge>
+                    </div>
+                  </div>
+                  {unitData.data.description && (
+                    <div className="mt-3">
+                      <small className="text-muted">Description</small>
+                      <p className="small mb-0">{unitData.data.description}</p>
+                    </div>
+                  )}
+                </Card.Body>
+              </Card>
+
+              {getActiveLease() ? (
+                <Card>
+                  <Card.Body>
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <h6 className="card-title mb-0">Current Occupancy</h6>
+                      <Badge bg="success">Active</Badge>
+                    </div>
+
+                    <div className="mb-3 pb-3" style={{ borderBottom: '1px solid #dee2e6' }}>
+                      <small className="text-muted">Tenant</small>
+                      <div>
+                        <strong>{getActiveLease()?.user.fullName}</strong>
+                      </div>
+                      <div className="small">
+                        <i className="bi bi-telephone me-1"></i>
+                        {getActiveLease()?.user.phone}
+                      </div>
+                    </div>
+
+                    <div className="mb-2">
+                      <small className="text-muted">Lease Start</small>
+                      <div>{formatDate(getActiveLease()?.leaseStart)}</div>
+                    </div>
+
+                    {getActiveLease()?.leaseEnd && (
+                      <div className="mb-2">
+                        <small className="text-muted">Lease End</small>
+                        <div>{formatDate(getActiveLease()?.leaseEnd)}</div>
+                      </div>
+                    )}
+
+                    <div className="mb-2">
+                      <small className="text-muted">Agreed Rent</small>
+                      <div>
+                        <strong>KES {formatCurrency(getActiveLease()?.agreedRent)}</strong>
+                        <span className="text-muted small"> / month</span>
+                      </div>
+                    </div>
+
+                    <div className="mb-2">
+                      <small className="text-muted">Security Deposit</small>
+                      <div>KES {formatCurrency(getActiveLease()?.deposit)}</div>
+                    </div>
+
+                    <div className="mt-3 pt-3" style={{ borderTop: '1px solid #dee2e6' }}>
+                      <small className="text-muted">Lease Duration</small>
+                      <div>
+                        {getActiveLease()?.leaseEnd
+                          ? `${Math.ceil(
+                              (new Date(getActiveLease()?.leaseEnd).getTime() -
+                                new Date(getActiveLease()?.leaseStart).getTime()) /
+                                (1000 * 60 * 60 * 24 * 30)
+                            )} months`
+                          : 'Open-ended'}
+                      </div>
+                    </div>
+
+                    <div className="mt-3">
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        className="w-100"
+                        onClick={() => navigate(`/properties/${propertyId}/leases/${getActiveLease()?.id}/terminate`)}
+                      >
+                        <i className="bi bi-x-circle me-1"></i>
+                        Terminate Lease
+                      </Button>
+                    </div>
+                  </Card.Body>
+                </Card>
+              ) : (
+                <Card>
+                  <Card.Body className="text-center py-4">
+                    <i className="bi bi-person-x" style={{ fontSize: '2.5rem', color: '#ccc' }}></i>
+                    <h6 className="mt-3 mb-2">No Active Tenant</h6>
+                    <p className="text-muted small mb-3">This unit is currently vacant</p>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => navigate(`/properties/${propertyId}/units/${unitId}/add-tenant`)}
+                    >
+                      <i className="bi bi-person-plus me-1"></i>
+                      Add Tenant
+                    </Button>
+                  </Card.Body>
+                </Card>
+              )}
+            </>
+          )}
         </Col>
       </Row>
     </div>
