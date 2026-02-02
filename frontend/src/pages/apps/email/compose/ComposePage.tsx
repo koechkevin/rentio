@@ -4,7 +4,7 @@ import Select, { components, OptionProps } from 'react-select';
 import { users } from '@/mock/usersData';
 import { getUrl } from '@/utils/getUrl';
 import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
+import 'quill/dist/quill.snow.css';
 import { Button, Row, Col, Form } from 'react-bootstrap';
 const ComposePage = () => {
   const [value, setValue] = useState('');
