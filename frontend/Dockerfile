@@ -3,8 +3,7 @@ FROM node:24-bullseye AS builder
 
 WORKDIR /app
 
-COPY package*.json yarn.lock* ./
-
+COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
 COPY . .
