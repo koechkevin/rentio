@@ -9,8 +9,6 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 RUN yarn run build
-RUN yarn prisma generate
-RUN yarn prisma migrate deploy
 
 # Runtime stage
 FROM nginx:latest
