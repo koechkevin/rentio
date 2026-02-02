@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
+import 'quill/dist/quill.snow.css';
 
 const TOOLBAR_OPTIONS = [
   ['bold', 'italic', 'underline', 'strike'],
