@@ -3,6 +3,10 @@ import prisma from "../../utils/prisma";
 import { AuthRequest } from "../../middleware/auth";
 import { InvoiceStatus, BillingDuration } from "@prisma/client";
 import { AppError } from "../../middleware/errorHandler";
+import {
+  autoAllocateToNewInvoice,
+  calculateArrears,
+} from "../../services/payment.service";
 
 // Helper function to generate invoice number
 const generateInvoiceNumber = async (): Promise<string> => {
@@ -68,6 +72,7 @@ export const createInvoice = async (
         billingDuration: item.billingDuration,
         billingPeriod: item.billingPeriod ? new Date(item.billingPeriod) : null,
         total: itemTotal,
+        vatable: item.vatable || false,
       };
     });
 
@@ -87,6 +92,7 @@ export const createInvoice = async (
         totalAmount,
         vatAmount,
         subTotal,
+        vatRate,
         dueDate: new Date(dueDate),
         notes,
         createdBy: req.user!.id,
@@ -121,9 +127,53 @@ export const createInvoice = async (
       },
     });
 
+    // Auto-allocate any unallocated payments to this invoice
+    await autoAllocateToNewInvoice(invoice.id);
+
+    // Fetch updated invoice with allocations
+    const updatedInvoice = await prisma.invoice.findUnique({
+      where: { id: invoice.id },
+      include: {
+        items: true,
+        customer: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        unit: {
+          select: {
+            id: true,
+            unitNumber: true,
+            type: true,
+          },
+        },
+        property: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        allocations: {
+          include: {
+            payment: {
+              select: {
+                id: true,
+                amount: true,
+                reference: true,
+                paidAt: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
     res.status(201).json({
       message: "Invoice created successfully",
-      data: invoice,
+      data: updatedInvoice,
     });
   } catch (error) {
     next(error);
@@ -184,6 +234,19 @@ export const getInvoices = async (
             select: {
               id: true,
               name: true,
+            },
+          },
+          allocations: {
+            select: {
+              id: true,
+              amount: true,
+              payment: {
+                select: {
+                  id: true,
+                  reference: true,
+                  paidAt: true,
+                },
+              },
             },
           },
         },
@@ -255,6 +318,19 @@ export const getInvoiceById = async (
             id: true,
             fullName: true,
             email: true,
+          },
+        },
+        allocations: {
+          select: {
+            id: true,
+            amount: true,
+            payment: {
+              select: {
+                id: true,
+                reference: true,
+                paidAt: true,
+              },
+            },
           },
         },
       },
@@ -629,6 +705,29 @@ export const getCustomerInvoices = async (
         limit: Number(limit),
         total,
         totalPages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get customer arrears
+export const getCustomerArrears = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { customerId } = req.params;
+
+    const arrears = await calculateArrears(customerId);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        customerId,
+        arrears: arrears.toString(),
       },
     });
   } catch (error) {

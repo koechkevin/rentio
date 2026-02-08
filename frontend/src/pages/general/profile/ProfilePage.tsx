@@ -9,6 +9,7 @@ import ProfileUploads from './components/ProfileUploads';
 import TenancyDetails from './components/TenancyDetails';
 import ProfileIssues from './components/ProfileIssues';
 import ProfileInvoices from './components/ProfileInvoices';
+import ProfilePayments from './components/ProfilePayments';
 import TenancyDetailsCard from './components/TenancyDetailsCard';
 import { useAppSelector } from '@/store/store';
 
@@ -64,6 +65,9 @@ const ProfilePage = () => {
                   <Nav.Item>
                     <Nav.Link eventKey="invoices">Invoices</Nav.Link>
                   </Nav.Item>
+                  <Nav.Item>
+                    <Nav.Link eventKey="payments">Payments</Nav.Link>
+                  </Nav.Item>
                 </Nav>
                 <Tab.Content>
                   <Tab.Pane eventKey="timeline">
@@ -77,6 +81,9 @@ const ProfilePage = () => {
                   </Tab.Pane>
                   <Tab.Pane eventKey="invoices">
                     <ProfileInvoices userId={userId!} />
+                  </Tab.Pane>
+                  <Tab.Pane eventKey="payments">
+                    <ProfilePayments userId={userId!} />
                   </Tab.Pane>
                 </Tab.Content>
               </Tab.Container>

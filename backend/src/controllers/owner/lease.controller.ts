@@ -2,8 +2,8 @@ import { Response, NextFunction } from "express";
 import prisma from "../../utils/prisma";
 import { AuthRequest } from "../../middleware/auth";
 import { AppError } from "../../middleware/errorHandler";
-import { sendVerificationEmail } from "../../services/email.service";
 import bcrypt from "bcrypt";
+import { resetPasswordUtil } from "../auth.controller";
 
 export const createLeaseWithTenant = async (
   req: AuthRequest,
@@ -102,14 +102,6 @@ export const createLeaseWithTenant = async (
       const tempPassword = Math.random().toString(36).slice(-8);
       const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
-      // Generate verification code
-      const verificationCode = Math.floor(
-        100000 + Math.random() * 900000,
-      ).toString();
-      const verificationCodeExpiresAt = new Date(
-        Date.now() + 24 * 60 * 60 * 1000,
-      ); // 24 hours
-
       // Create new user
       user = await prisma.user.create({
         data: {
@@ -119,8 +111,6 @@ export const createLeaseWithTenant = async (
           phone,
           password: hashedPassword,
           status: "INACTIVE",
-          verificationCode,
-          verificationCodeExpiresAt,
           isEmailVerified: false,
         },
       });
@@ -128,13 +118,9 @@ export const createLeaseWithTenant = async (
       isNewUser = true;
 
       // Send verification email with temporary password
-      try {
-        await sendVerificationEmail(email, verificationCode);
-        // You might want to send another email with temp password
-        // await sendTempPasswordEmail(email, tempPassword, fullName);
-      } catch (emailError) {
-        console.error("Failed to send verification email:", emailError);
-        // Continue with lease creation even if email fails
+      const isPasswordReset = await resetPasswordUtil(email);
+      if (!isPasswordReset) {
+        throw new AppError("Failed to send verification email", 500);
       }
     }
 

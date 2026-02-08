@@ -69,3 +69,46 @@ export const sendVerificationEmail = async (
     throw new AppError(JSON.stringify(error), 500);
   }
 };
+
+/**
+ * Reusable utility to send password reset email with verification code and JWT token
+ * @param email - User's email address
+ * @param verificationCode - 6-digit verification code
+ * @param resetToken - JWT token for password reset
+ * @param frontendUrl - Base URL of the frontend application
+ */
+export const sendPasswordResetEmail = async (
+  email: string,
+  verificationCode: string,
+  resetToken: string,
+  frontendUrl: string,
+) => {
+  const from = process.env.EMAIL_FROM || "kevin@kevinkoech.com";
+  const resetUrl = `${frontendUrl}/auth/reset-password?token=${resetToken}&code=${verificationCode}`;
+
+  try {
+    const info = await transporter.sendMail({
+      from,
+      to: email,
+      subject: "Reset Your Password - Property SAAS",
+      name: "Password Reset",
+      html: `
+        <h2>Password Reset Request</h2>
+        <p>You requested to reset your password for Property SAAS.</p>
+        <p>Your verification code is: <strong>${verificationCode}</strong></p>
+        <p>Click the link below to reset your password:</p>
+        <p><a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a></p>
+        <p>Or copy and paste this URL into your browser:</p>
+        <p>${resetUrl}</p>
+        <p>This link will expire in 1 hour.</p>
+        <p>If you didn't request this, please ignore this email.</p>
+      `,
+    });
+
+    console.log(`Password reset email sent to ${email}`);
+    return info;
+  } catch (error) {
+    console.error("Failed to send password reset email:", error);
+    throw new AppError("Failed to send password reset email", 500);
+  }
+};

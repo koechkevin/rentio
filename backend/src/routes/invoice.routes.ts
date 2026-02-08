@@ -70,4 +70,12 @@ router.get(
 // Customer invoices - tenants can view their own invoices
 router.get("/my-invoices", invoiceController.getCustomerInvoices);
 
+// Get customer arrears
+router.get(
+  "/customer/:customerId/arrears",
+  extractPropertyId,
+  authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
+  invoiceController.getCustomerArrears,
+);
+
 export default router;

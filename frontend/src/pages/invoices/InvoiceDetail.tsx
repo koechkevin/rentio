@@ -186,6 +186,64 @@ const InvoiceDetail = () => {
                   </Col>
                 </Row>
               )}
+
+              {(invoice as any).allocations && (invoice as any).allocations.length > 0 && (
+                <Row className="mt-4">
+                  <Col md={12}>
+                    <h6 className="mb-3">Payment History</h6>
+                    <div className="table-responsive">
+                      <Table bordered hover>
+                        <thead className="table-light">
+                          <tr>
+                            <th>Payment Date</th>
+                            <th>Reference</th>
+                            <th className="text-end">Amount Paid</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(invoice as any).allocations.map((allocation: any) => (
+                            <tr key={allocation.id}>
+                              <td>
+                                {new Date(allocation.payment.paidAt).toLocaleDateString()}{' '}
+                                <span className="text-muted small">
+                                  {new Date(allocation.payment.paidAt).toLocaleTimeString()}
+                                </span>
+                              </td>
+                              <td>{allocation.payment.reference || 'N/A'}</td>
+                              <td className="text-end text-success fw-bold">
+                                KES {Number(allocation.amount).toFixed(2)}
+                              </td>
+                            </tr>
+                          ))}
+                          <tr className="table-info">
+                            <td colSpan={2} className="fw-bold">
+                              Total Paid:
+                            </td>
+                            <td className="text-end text-success fw-bold">
+                              KES{' '}
+                              {(invoice as any).allocations
+                                .reduce((sum: number, a: any) => sum + Number(a.amount), 0)
+                                .toFixed(2)}
+                            </td>
+                          </tr>
+                          <tr className="table-warning">
+                            <td colSpan={2} className="fw-bold">
+                              Balance Due:
+                            </td>
+                            <td className="text-end text-danger fw-bold">
+                              KES{' '}
+                              {(
+                                Number(invoice.totalAmount) -
+                                (invoice as any).allocations.reduce((sum: number, a: any) => sum + Number(a.amount), 0)
+                              ).toFixed(2)}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </Table>
+                    </div>
+                  </Col>
+                </Row>
+              )}
             </Card.Body>
           </Card>
         </Col>

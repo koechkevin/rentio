@@ -10,17 +10,6 @@ interface InvoiceItemData {
   billingPeriod?: Date;
 }
 
-interface CreateInvoiceData {
-  customerId: string;
-  propertyId: string;
-  unitId: string;
-  dueDate: Date;
-  items: InvoiceItemData[];
-  notes?: string;
-  vatRate?: number;
-  createdBy: string;
-}
-
 export class InvoiceService {
   /**
    * Generate a unique invoice number

@@ -6,12 +6,17 @@ import { Invoice } from '../types/invoice.types';
  * @param invoice - The invoice data to generate PDF from
  */
 export const generateInvoicePDF = (invoice: Invoice): void => {
+  // Determine if this is a receipt (paid invoice) or invoice
+  const isPaid = invoice.status === 'PAID';
+  const documentTitle = isPaid ? 'RECEIPT' : 'INVOICE';
+  const titleColor = isPaid ? '#28a745' : '#dc3545'; // Green for receipt, red for invoice
+
   // Create a temporary container with content
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = `
     <div id="invoice-content" style="width: 100%; max-width: 190mm; background: white; padding: 10px;">
       <div class="header" style="text-align: center; margin-bottom: 20px;">
-        <h1 style="font-size: 28px; color: #000; margin-bottom: 15px;">INVOICE</h1>
+        <h1 style="font-size: 28px; color: ${titleColor}; margin-bottom: 15px;">${documentTitle}</h1>
       </div>
       
       <div class="invoice-info" style="margin-bottom: 20px; color: #000;">
@@ -100,6 +105,46 @@ export const generateInvoicePDF = (invoice: Invoice): void => {
           : ''
       }
       
+      ${
+        (invoice as any).allocations && (invoice as any).allocations.length > 0
+          ? `
+        <div style="margin-top: 30px;">
+          <h3 style="font-size: 14px; margin-bottom: 15px; color: #000; border-bottom: 2px solid #428bca; padding-bottom: 8px;">Payment History</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background-color: #f8f8f8;">
+              <tr>
+                <th style="padding: 10px; text-align: left; font-weight: 600; font-size: 11px; border-bottom: 2px solid #ddd;">Payment Date</th>
+                <th style="padding: 10px; text-align: left; font-weight: 600; font-size: 11px; border-bottom: 2px solid #ddd;">Reference</th>
+                <th style="padding: 10px; text-align: right; font-weight: 600; font-size: 11px; border-bottom: 2px solid #ddd;">Amount Paid</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(invoice as any).allocations
+                .map(
+                  (allocation: any, index: number) => `
+                <tr style="background-color: ${index % 2 === 0 ? '#ffffff' : '#f8f8f8'};">
+                  <td style="padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${new Date(allocation.payment.paidAt).toLocaleDateString()} ${new Date(allocation.payment.paidAt).toLocaleTimeString()}</td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${allocation.payment.reference || 'N/A'}</td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 11px; text-align: right; color: #28a745; font-weight: 600;">KES ${Number(allocation.amount).toFixed(2)}</td>
+                </tr>
+              `
+                )
+                .join('')}
+              <tr style="background-color: #f0f8ff;">
+                <td colspan="2" style="padding: 12px; font-weight: bold; font-size: 11px; border-top: 2px solid #428bca;">Total Paid:</td>
+                <td style="padding: 12px; text-align: right; font-weight: bold; font-size: 11px; color: #28a745; border-top: 2px solid #428bca;">KES ${(invoice as any).allocations.reduce((sum: number, a: any) => sum + Number(a.amount), 0).toFixed(2)}</td>
+              </tr>
+              <tr style="background-color: #fff3cd;">
+                <td colspan="2" style="padding: 12px; font-weight: bold; font-size: 11px;">Balance Due:</td>
+                <td style="padding: 12px; text-align: right; font-weight: bold; font-size: 11px; color: #dc3545;">KES ${(Number(invoice.totalAmount) - (invoice as any).allocations.reduce((sum: number, a: any) => sum + Number(a.amount), 0)).toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `
+          : ''
+      }
+      
     </div>
   `;
 
@@ -111,7 +156,7 @@ export const generateInvoicePDF = (invoice: Invoice): void => {
   // Configure html2pdf options
   const options: any = {
     margin: [10, 10, 10, 10],
-    filename: `${invoice.invoiceNumber}.pdf`,
+    filename: `${isPaid ? 'RECEIPT' : 'INVOICE'}_${invoice.invoiceNumber}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: {
       scale: 2,

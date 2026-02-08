@@ -100,6 +100,26 @@ export interface CurrentUserResponse {
   };
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  verificationCode: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: baseQueryWithReauth,
@@ -150,6 +170,20 @@ export const authApi = createApi({
       query: () => '/auth/me',
       providesTags: ['CurrentUser'],
     }),
+    forgotPassword: builder.mutation<ForgotPasswordResponse, ForgotPasswordRequest>({
+      query: (data) => ({
+        url: '/auth/forgot-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    resetPassword: builder.mutation<ResetPasswordResponse, ResetPasswordRequest>({
+      query: (data) => ({
+        url: '/auth/reset-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -161,4 +195,6 @@ export const {
   useRefreshTokenMutation,
   useLogoutMutation,
   useGetCurrentUserQuery,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
 } = authApi;

@@ -116,6 +116,44 @@ router.get(
 
 /**
  * @swagger
+ * /tenant/payments/arrears:
+ *   get:
+ *     summary: Get outstanding arrears for the tenant
+ *     tags: [Tenant - Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Arrears amount
+ */
+router.get("/payments/arrears", authenticate, paymentController.getArrears);
+
+/**
+ * @swagger
+ * /tenant/payments/{id}/process:
+ *   post:
+ *     summary: Manually process a payment allocation
+ *     tags: [Tenant - Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Payment processed
+ */
+router.post(
+  "/payments/:id/process",
+  authenticate,
+  paymentController.processPaymentManually,
+);
+
+/**
+ * @swagger
  * /tenant/issues:
  *   post:
  *     summary: Create a maintenance issue

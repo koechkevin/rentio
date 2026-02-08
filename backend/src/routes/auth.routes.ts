@@ -186,4 +186,60 @@ router.post("/logout", authController.logout);
  */
 router.get("/me", authenticate, authController.getCurrentUser);
 
+/**
+ * @swagger
+ * /auth/forgot-password:
+ *   post:
+ *     summary: Request password reset
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "john@example.com"
+ *     responses:
+ *       200:
+ *         description: Password reset instructions sent if email exists
+ */
+router.post("/forgot-password", authController.forgotPassword);
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Reset password with token and verification code
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token, verificationCode, newPassword]
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: JWT token from reset email
+ *               verificationCode:
+ *                 type: string
+ *                 description: 6-digit verification code from email
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 6
+ *                 example: "newPassword123"
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *       400:
+ *         description: Invalid token, code, or validation error
+ */
+router.post("/reset-password", authController.resetPassword);
+
 export default router;

@@ -37,12 +37,17 @@ const CreateInvoiceForm = lazy(() => import('@/pages/invoices/CreateInvoiceForm'
 // const InvoiceDetail = lazy(() => import('@/pages/invoices/InvoiceDetail'));
 import InvoiceDetail from '@/pages/invoices/InvoiceDetail';
 
+// Payment Management
+const PaymentList = lazy(() => import('@/pages/payments/PaymentList'));
+const CreatePaymentForm = lazy(() => import('@/pages/payments/CreatePaymentForm'));
+
 const Error404Page = lazy(() => import('@/pages/error/Error404Page'));
 const Error500Page = lazy(() => import('@/pages/error/Error500Pge'));
 
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('@/pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('@/pages/auth/ResetPasswordPage'));
 const VerifyEmailPage = lazy(() => import('@/pages/auth/VerifyEmailPage'));
 
 const AppRoutes = () => {
@@ -158,12 +163,17 @@ const AppRoutes = () => {
             <Route path="/finance/invoices" element={<InvoiceList />} />
             <Route path="/finance/invoices/create" element={<CreateInvoiceForm />} />
             <Route path="/finance/invoices/:id" element={<InvoiceDetail />} />
+
+            {/* Payment Management Routes */}
+            <Route path="/finance/payments" element={<PaymentList />} />
+            <Route path="/finance/payments/create" element={<CreatePaymentForm />} />
           </Route>
         </Route>
         <Route element={<AuthLayout />}>
           <Route path="auth/login" element={<LoginPage />} />
           <Route path="auth/register" element={<RegisterPage />} />
           <Route path="auth/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="auth/reset-password" element={<ResetPasswordPage />} />
           <Route path="auth/verify-email" element={<VerifyEmailPage />} />
         </Route>
         <Route element={<ErrorLayout />}>

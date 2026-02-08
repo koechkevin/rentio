@@ -10,6 +10,7 @@ import * as unitController from "../controllers/owner/unit.controller";
 import * as leaseController from "../controllers/owner/lease.controller";
 import * as roleController from "../controllers/owner/role.controller";
 import * as subscriptionController from "../controllers/owner/subscription.controller";
+import * as paymentController from "../controllers/owner/payment.controller";
 
 const router = Router();
 
@@ -202,5 +203,31 @@ router.get("/properties/:id", propertyController.getProperty);
  *         description: Property updated successfully
  */
 router.put("/properties/:id", propertyController.updateProperty);
+
+// Payment routes - owner and caretaker
+router.post(
+  "/payments",
+  extractPropertyId,
+  authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
+  paymentController.createPayment,
+);
+router.get(
+  "/payments",
+  extractPropertyId,
+  authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
+  paymentController.getPayments,
+);
+router.get(
+  "/payments/:id",
+  extractPropertyId,
+  authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
+  paymentController.getPayment,
+);
+router.post(
+  "/payments/:id/process",
+  extractPropertyId,
+  authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
+  paymentController.processPaymentManually,
+);
 
 export default router;

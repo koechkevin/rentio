@@ -4,7 +4,10 @@ import jwt from "jsonwebtoken";
 import prisma from "../utils/prisma";
 import { AppError } from "../middleware/errorHandler";
 import { GlobalRole } from "@prisma/client";
-import { sendVerificationEmail } from "../services/email.service";
+import {
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+} from "../services/email.service";
 import { AuthRequest } from "../middleware/auth";
 
 export const generateVerificationCode = (): string => {
@@ -361,6 +364,154 @@ export const getCurrentUser = async (
         },
         userPropertyRoles: user.userPropertyRoles,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPasswordUtil = async (email: string) => {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+  if (!user) {
+    return;
+  }
+  const verificationCode = generateVerificationCode();
+  const verificationCodeExpiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+  const resetToken = jwt.sign(
+    { userId: user.id, email: user.email, type: "password_reset" },
+    process.env.JWT_SECRET || "your-secret-key",
+    { expiresIn: "1h" },
+  );
+
+  // Update user with verification code
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      verificationCode,
+      verificationCodeExpiresAt,
+    },
+  });
+
+  // Send password reset email
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+  await sendPasswordResetEmail(
+    email,
+    verificationCode,
+    resetToken,
+    frontendUrl,
+  );
+  return true;
+};
+export const forgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      throw new AppError("Email is required", 400);
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    // Always return success to prevent email enumeration
+    if (!user) {
+      return res.json({
+        success: true,
+        message:
+          "If the email exists, password reset instructions have been sent.",
+      });
+    }
+
+    // Generate verification code and JWT token
+    await resetPasswordUtil(email);
+
+    res.json({
+      success: true,
+      message:
+        "If the email exists, password reset instructions have been sent.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { token, verificationCode, newPassword } = req.body;
+
+    if (!token || !verificationCode || !newPassword) {
+      throw new AppError(
+        "Token, verification code, and new password are required",
+        400,
+      );
+    }
+
+    if (newPassword.length < 6) {
+      throw new AppError("Password must be at least 6 characters long", 400);
+    }
+
+    // Verify JWT token
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || "your-secret-key");
+      if (decoded.type !== "password_reset") {
+        throw new AppError("Invalid token type", 400);
+      }
+    } catch (err) {
+      throw new AppError("Invalid or expired token", 400);
+    }
+
+    // Find user and verify code
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+    });
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    // Verify verification code
+    if (user.verificationCode !== verificationCode) {
+      throw new AppError("Invalid verification code", 400);
+    }
+
+    // Check if code is expired
+    if (
+      !user.verificationCodeExpiresAt ||
+      user.verificationCodeExpiresAt < new Date()
+    ) {
+      throw new AppError("Verification code has expired", 400);
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update user password and invalidate verification code
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        verificationCode: null,
+        verificationCodeExpiresAt: null,
+        isEmailVerified: true,
+        status: "ACTIVE",
+      },
+    });
+
+    res.json({
+      success: true,
+      message: "Password has been reset successfully",
     });
   } catch (error) {
     next(error);

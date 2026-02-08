@@ -1,54 +1,39 @@
-import { getUrl } from '@/utils/getUrl';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Form, Button, Alert, Spinner, Row, Col } from 'react-bootstrap';
 import { ShieldAlert } from 'lucide-react';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { useForgotPasswordMutation } from '@/services/api/authApi';
 
 const MySwal = withReactContent(Swal);
 
-const fakeForgotPasswordApi = (email: string) => {
-  return new Promise<{ message: string }>((resolve, reject) => {
-    setTimeout(() => {
-      if (email === 'admin@demo.com') {
-        resolve({ message: 'Password reset instructions sent to your email.' });
-      } else {
-        reject(new Error('Email not found.'));
-      }
-    }, 1200);
-  });
-};
-
 const ForgotPasswordPage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('admin@demo.com');
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+
+    if (!email) {
+      setError('Email is required');
+      return;
+    }
+
     try {
-      const result = await fakeForgotPasswordApi(email);
+      const result = await forgotPassword({ email }).unwrap();
       await MySwal.fire({
         title: 'Success!',
         text: result.message,
         icon: 'success',
-        confirmButtonText: 'Go to Login',
-        willClose: () => {
-          navigate('/auth/login', { replace: true });
-        },
+        confirmButtonText: 'OK',
       });
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unknown error occurred');
-      }
-    } finally {
-      setLoading(false);
+      navigate('/auth/login', { replace: true });
+    } catch (err: any) {
+      setError(err?.data?.message || 'Failed to send reset email. Please try again.');
     }
   };
 
@@ -78,12 +63,12 @@ const ForgotPasswordPage = () => {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
+                disabled={isLoading}
               />
             </Form.Group>
             <div>
-              <Button type="submit" variant="primary" className="me-2 mb-2 mb-md-0" disabled={loading}>
-                {loading ? (
+              <Button type="submit" variant="primary" className="me-2 mb-2 mb-md-0" disabled={isLoading}>
+                {isLoading ? (
                   <>
                     <Spinner size="sm" animation="border" /> Sending...
                   </>

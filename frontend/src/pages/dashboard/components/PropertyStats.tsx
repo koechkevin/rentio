@@ -21,6 +21,7 @@ const PropertyStats = () => {
   const activeLeases = leases.filter((l) => l.active).length;
   const totalRent = leases.filter((l) => l.active).reduce((sum, l) => sum + parseFloat(l.agreedRent.toString()), 0);
 
+  console.log(leases);
   if (!currentProperty) {
     return null;
   }
