@@ -44,10 +44,10 @@ const ProfileAbout = ({ userProfile }: Props) => {
           <label className="fs-11px fw-bolder mb-0 text-uppercase">Joined:</label>
           <p className="text-secondary">{formatDate(userProfile.createdAt)}</p>
         </div>
-        <div className="mt-3">
+        {/* <div className="mt-3">
           <label className="fs-11px fw-bolder mb-0 text-uppercase">Lives:</label>
           <p className="text-secondary">New York, USA</p>
-        </div>
+        </div> */}
         {/* <div className="mt-3 d-flex social-links">
           <Button variant="outline-secondary" className="btn-icon btn-xs me-2">
             <Github />

@@ -8,6 +8,7 @@ import { PropertyRole } from "@prisma/client";
 import * as leaseController from "../controllers/tenant/lease.controller";
 import * as paymentController from "../controllers/tenant/payment.controller";
 import * as issueController from "../controllers/tenant/issue.controller";
+import * as dashboardController from "../controllers/tenant/dashboard.controller";
 
 const router = Router();
 
@@ -256,5 +257,19 @@ router.get(
  *         description: List of leases
  */
 router.get("/leases", authenticate, leaseController.getUserLeases);
+
+/**
+ * @swagger
+ * /tenant/dashboard:
+ *   get:
+ *     summary: Get tenant dashboard metrics
+ *     tags: [Tenant - Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Tenant dashboard metrics
+ */
+router.get("/dashboard", authenticate, dashboardController.getTenantMetrics);
 
 export default router;

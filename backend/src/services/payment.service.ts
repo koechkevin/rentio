@@ -1,5 +1,131 @@
 import prisma from "../utils/prisma";
 import { Prisma } from "@prisma/client";
+import { AppError } from "../middleware/errorHandler";
+
+/**
+ * Calculate arrears for all units in a property
+ * Returns unit details, tenant info, outstanding balance, and lease details
+ */
+export const calculatePropertyUnitArrears = async (
+  propertyId: string,
+  userId: string,
+) => {
+  // Verify user has access to this property
+  const userPropertyRole = await prisma.userPropertyRole.findFirst({
+    where: {
+      propertyId,
+      userId,
+      removedAt: null,
+    },
+  });
+
+  if (!userPropertyRole) {
+    throw new AppError("You don't have access to this property", 403);
+  }
+
+  // Get all units with active leases
+  const units = await prisma.unit.findMany({
+    where: {
+      propertyId,
+    },
+    include: {
+      leases: {
+        where: {
+          active: true,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              phone: true,
+            },
+          },
+        },
+        orderBy: {
+          leaseStart: "desc",
+        },
+        take: 1,
+      },
+    },
+  });
+
+  // Calculate arrears for each unit
+  const unitArrears = await Promise.all(
+    units.map(async (unit) => {
+      const activeLease = unit.leases[0];
+
+      if (!activeLease) {
+        return {
+          unitId: unit.id,
+          unitNumber: unit.unitNumber,
+          unitType: unit.type,
+          tenant: null,
+          arrears: 0,
+          oldestDueDate: null,
+          leaseDetails: null,
+        };
+      }
+
+      // Get all unpaid invoices for this unit
+      const invoices = await prisma.invoice.findMany({
+        where: {
+          unitId: unit.id,
+          customerId: activeLease.userId,
+          status: { in: ["SENT", "OVERDUE"] },
+          deletedAt: null,
+        },
+        include: {
+          allocations: true,
+        },
+        orderBy: {
+          dueDate: "asc",
+        },
+      });
+
+      // Calculate total arrears
+      let totalArrears = new Prisma.Decimal(0);
+      let oldestDueDate: Date | null = null;
+
+      invoices.forEach((invoice) => {
+        const totalAllocated = invoice.allocations.reduce(
+          (sum, allocation) => sum.add(allocation.amount),
+          new Prisma.Decimal(0),
+        );
+        const balance = invoice.totalAmount.sub(totalAllocated);
+        totalArrears = totalArrears.add(balance);
+
+        if (!oldestDueDate || invoice.dueDate < oldestDueDate) {
+          oldestDueDate = invoice.dueDate;
+        }
+      });
+
+      return {
+        unitId: unit.id,
+        unitNumber: unit.unitNumber,
+        unitType: unit.type,
+        tenant: {
+          id: activeLease.user.id,
+          fullName: activeLease.user.fullName,
+          email: activeLease.user.email,
+          phone: activeLease.user.phone,
+        },
+        arrears: Number(totalArrears),
+        oldestDueDate,
+        leaseDetails: {
+          leaseStart: activeLease.leaseStart,
+          leaseEnd: activeLease.leaseEnd,
+          agreedRent: Number(activeLease.agreedRent),
+          deposit: Number(activeLease.deposit),
+        },
+      };
+    }),
+  );
+
+  // Filter to only show units with arrears or active leases
+  return unitArrears.filter((unit) => unit.tenant !== null);
+};
 
 /**
  * Allocate payment to pending SENT invoices

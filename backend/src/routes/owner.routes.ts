@@ -11,6 +11,7 @@ import * as leaseController from "../controllers/owner/lease.controller";
 import * as roleController from "../controllers/owner/role.controller";
 import * as subscriptionController from "../controllers/owner/subscription.controller";
 import * as paymentController from "../controllers/owner/payment.controller";
+import * as dashboardController from "../controllers/owner/dashboard.controller";
 
 const router = Router();
 
@@ -228,6 +229,21 @@ router.post(
   extractPropertyId,
   authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
   paymentController.processPaymentManually,
+);
+
+// Arrears routes
+router.get(
+  "/arrears",
+  extractPropertyId,
+  authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
+  paymentController.getPropertyUnitArrears,
+);
+
+// Dashboard routes
+router.get(
+  "/dashboard/:propertyId",
+  authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
+  dashboardController.getPropertyMetrics,
 );
 
 export default router;

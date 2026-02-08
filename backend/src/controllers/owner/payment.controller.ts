@@ -1,7 +1,10 @@
 import { Response, NextFunction } from "express";
 import prisma from "../../utils/prisma";
 import { AuthRequest } from "../../middleware/auth";
-import { processPayment } from "../../services/payment.service";
+import {
+  processPayment,
+  calculatePropertyUnitArrears,
+} from "../../services/payment.service";
 
 export const createPayment = async (
   req: AuthRequest,
@@ -256,6 +259,27 @@ export const processPaymentManually = async (
     res.json({
       success: true,
       message: "Payment processed successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPropertyUnitArrears = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const propertyId = req.propertyId!;
+    const unitArrears = await calculatePropertyUnitArrears(
+      propertyId,
+      req.user!.id,
+    );
+
+    res.json({
+      success: true,
+      data: unitArrears,
     });
   } catch (error) {
     next(error);

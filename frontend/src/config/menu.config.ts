@@ -1,26 +1,4 @@
-import {
-  LucideIcon,
-  Home,
-  Building2,
-  Users,
-  DollarSign,
-  Wrench,
-  FileText,
-  BarChart3,
-  Settings,
-  Lock,
-  AlertCircle,
-  MessageSquare,
-  ClipboardList,
-  CheckCircle2,
-  TrendingUp,
-  Briefcase,
-  Image,
-  Key,
-  Clock,
-  MapPin,
-  Zap,
-} from 'lucide-react';
+import { LucideIcon, Home, Building2, DollarSign, FileText, Lock, AlertCircle, Key, MapPin, Zap } from 'lucide-react';
 
 export interface MenuItem {
   label: string;
@@ -104,12 +82,6 @@ const ADMIN_MENU: MenuItem[] = [
     icon: FileText,
     roles: ['OWNER', 'ADMIN'],
     link: '/finance/invoices',
-  },
-  {
-    label: 'Receipts',
-    link: '/finance/receipts',
-    icon: DollarSign,
-    roles: ['OWNER', 'ADMIN'],
   },
   {
     label: 'Arrears',

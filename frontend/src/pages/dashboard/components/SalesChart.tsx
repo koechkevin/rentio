@@ -2,14 +2,26 @@ import React, { useMemo } from 'react';
 import { getCssVariable } from '@/utils/getCssVariable';
 import { ApexOptions } from 'apexcharts';
 import Chart from 'react-apexcharts';
+import { useGetPropertyMetricsQuery } from '../../../services/api/dashboardApi';
+import { useAppSelector } from '../../../store/store';
 
 const SalesChart = () => {
+  const currentPropertyId = useAppSelector((state) => state.property.currentPropertyId);
+  const { data, isLoading } = useGetPropertyMetricsQuery(currentPropertyId || '', {
+    skip: !currentPropertyId,
+  });
+  const monthlyPayments = data?.data?.monthlyPayments || [];
+
+  const chartData = useMemo(() => {
+    return monthlyPayments.map((item) => item.cumulative);
+  }, [monthlyPayments]);
+
   const options: ApexOptions = useMemo(
     () => ({
       series: [
         {
-          name: 'Sales',
-          data: [152, 109, 93, 113, 126, 161, 188, 143, 102, 113, 116, 124],
+          name: 'Cumulative Payments',
+          data: chartData.length > 0 ? chartData : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         },
       ],
       chart: {
@@ -89,8 +101,12 @@ const SalesChart = () => {
         },
       },
     }),
-    []
+    [chartData]
   );
+
+  if (isLoading) {
+    return <div className="text-center py-5">Loading payment data...</div>;
+  }
 
   return <Chart options={options} series={options.series} type="bar" height={330} />;
 };

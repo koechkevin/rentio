@@ -40,6 +40,7 @@ import InvoiceDetail from '@/pages/invoices/InvoiceDetail';
 // Payment Management
 const PaymentList = lazy(() => import('@/pages/payments/PaymentList'));
 const CreatePaymentForm = lazy(() => import('@/pages/payments/CreatePaymentForm'));
+const ArrearsTable = lazy(() => import('@/pages/payments/ArrearsTable'));
 
 const Error404Page = lazy(() => import('@/pages/error/Error404Page'));
 const Error500Page = lazy(() => import('@/pages/error/Error500Pge'));
@@ -167,6 +168,7 @@ const AppRoutes = () => {
             {/* Payment Management Routes */}
             <Route path="/finance/payments" element={<PaymentList />} />
             <Route path="/finance/payments/create" element={<CreatePaymentForm />} />
+            <Route path="/finance/arrears" element={<ArrearsTable />} />
           </Route>
         </Route>
         <Route element={<AuthLayout />}>

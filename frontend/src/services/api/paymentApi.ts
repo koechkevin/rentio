@@ -84,6 +84,31 @@ export interface ArrearsResponse {
   };
 }
 
+export interface UnitArrears {
+  unitId: string;
+  unitNumber: string;
+  unitType: string;
+  tenant: {
+    id: string;
+    fullName: string;
+    email: string;
+    phone: string;
+  } | null;
+  arrears: number;
+  oldestDueDate: string | null;
+  leaseDetails: {
+    leaseStart: string;
+    leaseEnd: string | null;
+    agreedRent: number;
+    deposit: number;
+  } | null;
+}
+
+export interface PropertyArrearsResponse {
+  success: boolean;
+  data: UnitArrears[];
+}
+
 export const paymentApi = createApi({
   reducerPath: 'paymentApi',
   baseQuery: baseQueryWithReauth,
@@ -157,6 +182,17 @@ export const paymentApi = createApi({
       }),
       providesTags: ['Payment'],
     }),
+
+    // Get property unit arrears (for owner/caretaker)
+    getPropertyUnitArrears: builder.query<PropertyArrearsResponse, string>({
+      query: (propertyId) => ({
+        url: `/owner/arrears`,
+        headers: {
+          'X-Property-Id': propertyId,
+        },
+      }),
+      providesTags: ['Payment'],
+    }),
   }),
 });
 
@@ -168,4 +204,5 @@ export const {
   useGetTenantArrearsQuery,
   useGetCustomerArrearsQuery,
   useGetTenantPaymentsQuery,
+  useGetPropertyUnitArrearsQuery,
 } = paymentApi;
