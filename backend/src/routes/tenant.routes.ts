@@ -39,9 +39,9 @@ router.get(
 
 /**
  * @swagger
- * /tenant/payments/initiate:
+ * /tenant/payments/create:
  *   post:
- *     summary: Initiate payment for rent or utilities
+ *     summary: Create payment for rent or utilities
  *     tags: [Tenant - Payments]
  *     security:
  *       - bearerAuth: []
@@ -60,21 +60,17 @@ router.get(
  *                 type: string
  *                 example: "Rent payment"
  *     responses:
- *       200:
- *         description: Payment initiated successfully
+ *       201:
+ *         description: Payment created successfully
  *       400:
  *         description: Invalid amount
  */
 router.post(
-  "/payments/initiate",
+  "/payments/create",
   authenticate,
   extractPropertyId,
-  authorizeProperty(
-    PropertyRole.TENANT,
-    PropertyRole.CARETAKER,
-    PropertyRole.OWNER,
-  ),
-  paymentController.initiatePayment,
+  authorizeProperty(PropertyRole.CARETAKER, PropertyRole.OWNER),
+  paymentController.createPayment,
 );
 
 /**

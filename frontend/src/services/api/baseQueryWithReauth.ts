@@ -7,6 +7,11 @@ const baseQuery = fetchBaseQuery({
   baseUrl: API_CONFIG.BASE_URL,
   prepareHeaders: (headers) => {
     const token = localStorage.getItem('token');
+    const propertyId = localStorage.getItem('currentPropertyId');
+
+    if (propertyId) {
+      headers.set('X-Property-Id', propertyId);
+    }
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
@@ -58,22 +63,19 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
         } else {
           // Refresh failed, log out the user
           api.dispatch(logout());
-          localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
+          localStorage.clear();
           window.location.href = '/login';
         }
       } else {
         // Refresh failed, log out the user
         api.dispatch(logout());
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
+        localStorage.clear();
         window.location.href = '/login';
       }
     } else {
       // No refresh token available, log out
       api.dispatch(logout());
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
+      localStorage.clear();
       window.location.href = '/login';
     }
   }

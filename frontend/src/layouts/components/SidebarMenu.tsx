@@ -6,7 +6,6 @@ import clsx from 'clsx';
 import MetisMenu from 'metismenujs';
 import { useSettings } from '@/contexts/SettingsContext';
 import { Badge } from 'react-bootstrap';
-import { useAppSelector } from '@/store/store';
 import { useCurrentProperty } from '@/hooks/useCurrentProperty';
 
 const SidebarMenu = () => {

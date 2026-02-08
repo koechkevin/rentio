@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Row, Col, Card, Table, Badge, Button, Spinner, Alert, Form, InputGroup } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Link } from 'react-router';
 import { useGetUnitsQuery, type Unit } from '../../../services/api/unitApi';
 import { useDispatch } from 'react-redux';
 import { setCurrentProperty } from '../../../store/slices/propertySlice';
@@ -277,6 +278,9 @@ const UnitList = () => {
                                 >
                                   Edit
                                 </Button>
+                                <Link to={`/finance/invoices/create?unitId=${unit.id}`} className="p-0 ms-2">
+                                  Invoice
+                                </Link>
                               </td>
                             </tr>
                           );

@@ -460,7 +460,6 @@ export const MENU: MenuItem[] = [...ADMIN_MENU];
 
 // Helper function to filter menu by roles
 export const getMenuByRole = (roles: string[]): MenuItem[] => {
-  console.log({ roles });
   if (!roles || roles.length === 0) {
     return [];
   }

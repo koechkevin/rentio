@@ -5,7 +5,7 @@ interface PropertyState {
 }
 
 const initialState: PropertyState = {
-  currentPropertyId: localStorage.getItem('currentPropertyId'),
+  currentPropertyId: null,
 };
 
 const propertySlice = createSlice({

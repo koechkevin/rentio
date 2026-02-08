@@ -136,7 +136,6 @@ const ImageUploader = ({ entityType, entityId, propertyId, maxFiles = 10, disabl
     setDraggedItem(null);
   };
 
-  console.log('entityUploads', entityUploads);
   return (
     <div>
       {error && (
@@ -209,7 +208,6 @@ const ImageUploader = ({ entityType, entityId, propertyId, maxFiles = 10, disabl
             padding: '40px',
             textAlign: 'center',
             cursor: disabled ? 'not-allowed' : 'pointer',
-            backgroundColor: isDragActive ? '#f0f0f0' : '#fafafa',
             opacity: disabled ? 0.5 : 1,
           }}
         >

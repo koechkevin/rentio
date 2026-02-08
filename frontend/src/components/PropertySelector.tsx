@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '../store/store';
 import { setCurrentProperty } from '../store/slices/propertySlice';
 import { Building2 } from 'lucide-react';
 import { useThemeMode } from '../contexts/ThemeModeContext';
+import { useEffect } from 'react';
 
 const PropertySelector = () => {
   const dispatch = useAppDispatch();
@@ -13,9 +14,11 @@ const PropertySelector = () => {
   const properties = propertiesData?.data || [];
 
   // Set first property as default if none selected
-  if (!isLoading && properties.length > 0 && !currentPropertyId) {
-    dispatch(setCurrentProperty(properties[0].id));
-  }
+  useEffect(() => {
+    if (!isLoading && properties.length > 0 && !currentPropertyId) {
+      dispatch(setCurrentProperty(properties[0].id));
+    }
+  }, [isLoading, properties, currentPropertyId, dispatch]);
 
   const handlePropertyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setCurrentProperty(e.target.value));

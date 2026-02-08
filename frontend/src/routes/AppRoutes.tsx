@@ -17,59 +17,6 @@ const ErrorLayout = lazy(() => import('@/layouts/ErrorLayout'));
 
 const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'));
 
-const ChatPage = lazy(() => import('@/pages/apps/chat/ChatPage'));
-const CalendarPage = lazy(() => import('@/pages/apps/calendar/CalendarPage'));
-const EmailLayout = lazy(() => import('@/pages/apps/email/EmailLayout'));
-const InboxPage = lazy(() => import('@/pages/apps/email/inbox/InboxPage'));
-const ReadPage = lazy(() => import('@/pages/apps/email/read/ReadPage'));
-const ComposePage = lazy(() => import('@/pages/apps/email/compose/ComposePage'));
-
-const AccordionPage = lazy(() => import('@/pages/ui-components/accordion/AccordionPage'));
-const AlertPage = lazy(() => import('@/pages/ui-components/alert/AlertPage'));
-const BadgePage = lazy(() => import('@/pages/ui-components/badge/BadgePage'));
-const BreadcrumbPage = lazy(() => import('@/pages/ui-components/breadcrumb/BreadcrumbPage'));
-const ButtonPage = lazy(() => import('@/pages/ui-components/button/ButtonPage'));
-const ButtonGroupPage = lazy(() => import('@/pages/ui-components/button-group/ButtonGroupPage'));
-const CardPage = lazy(() => import('@/pages/ui-components/card/CardPage'));
-const CarouselPage = lazy(() => import('@/pages/ui-components/carousel/CarouselPage'));
-const CollapsePage = lazy(() => import('@/pages/ui-components/collapse/CollapsePage'));
-const DropdownPage = lazy(() => import('@/pages/ui-components/dropdown/DropdownPage'));
-const ListGroupPage = lazy(() => import('@/pages/ui-components/list-group/ListGroupPage'));
-const ModalPage = lazy(() => import('@/pages/ui-components/modal/ModalPage'));
-const NavPage = lazy(() => import('@/pages/ui-components/nav/NavPage'));
-const OffcanvasPage = lazy(() => import('@/pages/ui-components/offcanvas/OffcanvasPage'));
-const OverlayPage = lazy(() => import('@/pages/ui-components/overlay/OverlayPage'));
-const PaginationPage = lazy(() => import('@/pages/ui-components/pagination/PaginationPage'));
-const PlaceholderPage = lazy(() => import('@/pages/ui-components/placeholder/PlaceholderPage'));
-const ProgressBarPage = lazy(() => import('@/pages/ui-components/progress-bar/ProgressbarPage'));
-const ScrollbarPage = lazy(() => import('@/pages/ui-components/scrollbar/ScrollbarPage'));
-const SpinnerPage = lazy(() => import('@/pages/ui-components/spinner/SpinnerPage'));
-const TablePage = lazy(() => import('@/pages/ui-components/table/TablePage'));
-const TabsPage = lazy(() => import('@/pages/ui-components/tabs/TabsPage'));
-const ToastPage = lazy(() => import('@/pages/ui-components/toast/ToastPage'));
-
-const ImageCropperPage = lazy(() => import('@/pages/advanced-ui/image-cropper/ImageCropperPage'));
-const SwiperPage = lazy(() => import('@/pages/advanced-ui/swiper/SwiperPage'));
-const SortablePage = lazy(() => import('@/pages/advanced-ui/sortable/SortablePage'));
-const SweetAlertPage = lazy(() => import('@/pages/advanced-ui/sweet-alert/SweetAlertPage'));
-
-const FormControlPage = lazy(() => import('@/pages/form-elements/form-control/FormControlPage'));
-const FormTextPage = lazy(() => import('@/pages/form-elements/form-text/FormTextPage'));
-const SelectPage = lazy(() => import('@/pages/form-elements/select/SelectPage'));
-const ChecksRadiosPage = lazy(() => import('@/pages/form-elements/checks-radios/ChecksRadiosPage'));
-const RangePage = lazy(() => import('@/pages/form-elements/range/RangePage'));
-const InputGroupPage = lazy(() => import('@/pages/form-elements/input-group/InputGroupPage'));
-const FloatingLabelPage = lazy(() => import('@/pages/form-elements/floating-label/FloatingLabelPage'));
-const FormLayoutPage = lazy(() => import('@/pages/form-elements/form-layout/FormLayoutPage'));
-const ValidationPage = lazy(() => import('@/pages/form-elements/validation/ValidationPage'));
-
-const FormValidationPage = lazy(() => import('@/pages/advanced-forms/form-validation/FormValidationPage'));
-const NumberFormatPage = lazy(() => import('@/pages/advanced-forms/number-format/NumberFormatPage'));
-const SearchSelectPage = lazy(() => import('@/pages/advanced-forms/search-select/SearchSelectPage'));
-const ColorPickerPage = lazy(() => import('@/pages/advanced-forms/color-picker/ColorPickerPage'));
-const DropzonePage = lazy(() => import('@/pages/advanced-forms/dropzone/DropzonePage'));
-const DatePickerPage = lazy(() => import('@/pages/advanced-forms/date-picker/DatePickerPage'));
-const TextEditorPage = lazy(() => import('@/pages/advanced-forms/text-editor/TextEditorPage'));
 const ApexChartsPage = lazy(() => import('@/pages/charts/apexcharts/ApexChartsPage'));
 const ChartJsPage = lazy(() => import('@/pages/charts/chartjs/ChartJsPage'));
 
@@ -83,6 +30,12 @@ const FaqPage = lazy(() => import('@/pages/general/FaqPage'));
 const InvoicePage = lazy(() => import('@/pages/general/InvoicePage'));
 const ProfilePage = lazy(() => import('@/pages/general/profile/ProfilePage'));
 const PricingPage = lazy(() => import('@/pages/general/PricingPage'));
+
+// Invoice Management
+const InvoiceList = lazy(() => import('@/pages/invoices/InvoiceList'));
+const CreateInvoiceForm = lazy(() => import('@/pages/invoices/CreateInvoiceForm'));
+// const InvoiceDetail = lazy(() => import('@/pages/invoices/InvoiceDetail'));
+import InvoiceDetail from '@/pages/invoices/InvoiceDetail';
 
 const Error404Page = lazy(() => import('@/pages/error/Error404Page'));
 const Error500Page = lazy(() => import('@/pages/error/Error500Pge'));
@@ -200,6 +153,11 @@ const AppRoutes = () => {
             <Route path="general/invoice" element={<InvoicePage />} />
             <Route path="general/profile" element={<ProfilePage />} />
             <Route path="general/pricing" element={<PricingPage />} />
+
+            {/* Invoice Management Routes */}
+            <Route path="/finance/invoices" element={<InvoiceList />} />
+            <Route path="/finance/invoices/create" element={<CreateInvoiceForm />} />
+            <Route path="/finance/invoices/:id" element={<InvoiceDetail />} />
           </Route>
         </Route>
         <Route element={<AuthLayout />}>

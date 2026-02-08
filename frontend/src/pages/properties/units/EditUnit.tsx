@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Row, Col, Card, Form, Button, Alert, Spinner, Badge } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useGetUnitQuery, useUpdateUnitMutation, type UnitType } from '../../../services/api/unitApi';
 import ImageUploader from '../../../components/ImageUploader';
 
@@ -292,6 +292,12 @@ const EditUnit = () => {
                       <p className="small mb-0">{unitData.data.description}</p>
                     </div>
                   )}
+                  <div className="mt-3 d-grid gap-2">
+                    <Link to={`/finance/invoices/create?unitId=${unitId}`} className="btn btn-primary btn-sm">
+                      <i className="bi bi-file-earmark-text me-1"></i>
+                      Create Invoice
+                    </Link>
+                  </div>
                 </Card.Body>
               </Card>
 
@@ -352,11 +358,10 @@ const EditUnit = () => {
                       </div>
                     </div>
 
-                    <div className="mt-3">
+                    <div className="mt-3 d-grid gap-2">
                       <Button
                         variant="outline-danger"
                         size="sm"
-                        className="w-100"
                         onClick={() => navigate(`/properties/${propertyId}/leases/${getActiveLease()?.id}/terminate`)}
                       >
                         <i className="bi bi-x-circle me-1"></i>

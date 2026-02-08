@@ -1,6 +1,8 @@
 import { Card, Badge, Button, Spinner, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useGetLeasesQuery } from '../../../../services/api/leaseApi';
+import { useGetInvoicesQuery } from '../../../../services/api/invoiceApi';
+import { InvoiceStatus } from '../../../../types/invoice.types';
 import { getUserIdFromToken } from '../../../../utils/jwt';
 
 const TenancyDetailsCard = () => {
@@ -10,7 +12,20 @@ const TenancyDetailsCard = () => {
   // Get all leases for the user and find the active one
   const { data: leasesData, isLoading, error } = useGetLeasesQuery('', { skip: !userId });
 
+  // Get unpaid invoices for arrears calculation
+  const { data: invoicesData } = useGetInvoicesQuery({ customerId: userId || '', limit: 100 }, { skip: !userId });
+
   const activeLease = leasesData?.data?.find((lease: any) => lease.active && lease.userId === userId);
+
+  // Calculate arrears from overdue and sent (unpaid) invoices
+  const calculateArrears = () => {
+    if (!invoicesData?.data) return 0;
+    return invoicesData.data
+      .filter((invoice) => invoice.status === InvoiceStatus.OVERDUE || invoice.status === InvoiceStatus.SENT)
+      .reduce((total, invoice) => total + Number(invoice.totalAmount), 0);
+  };
+
+  const arrears = calculateArrears();
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
@@ -104,6 +119,15 @@ const TenancyDetailsCard = () => {
           <small className="text-muted">Security Deposit</small>
           <div>KES {formatCurrency(activeLease.deposit)}</div>
         </div>
+
+        {arrears > 0 && (
+          <div className="mb-2">
+            <small className="text-muted">Outstanding Arrears</small>
+            <div>
+              <strong className="text-danger">KES {formatCurrency(arrears)}</strong>
+            </div>
+          </div>
+        )}
 
         <div className="mt-3 pt-3" style={{ borderTop: '1px solid #dee2e6' }}>
           <small className="text-muted">Lease Duration</small>

@@ -51,6 +51,15 @@ export const getUserLeases = async (
           },
           take: 5,
         },
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            phone: true,
+            nationalId: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",

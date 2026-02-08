@@ -2,16 +2,13 @@ import { Response, NextFunction } from "express";
 import prisma from "../../utils/prisma";
 import { AuthRequest } from "../../middleware/auth";
 
-export const initiatePayment = async (
+export const createPayment = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
     const { leaseId, amount, type } = req.body;
-
-    // TODO: Implement M-Pesa STK Push integration
-
     const payment = await prisma.payment.create({
       data: {
         leaseId,

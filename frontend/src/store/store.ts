@@ -8,6 +8,7 @@ import { unitApi } from '../services/api/unitApi';
 import { uploadApi } from '../services/api/uploadApi';
 import { leaseApi } from '../services/api/leaseApi';
 import { subscriptionApi } from '../services/api/subscriptionApi';
+import { invoiceApi } from '../services/api/invoiceApi';
 import propertyReducer from './slices/propertySlice';
 
 export const store = configureStore({
@@ -21,6 +22,7 @@ export const store = configureStore({
     [uploadApi.reducerPath]: uploadApi.reducer,
     [leaseApi.reducerPath]: leaseApi.reducer,
     [subscriptionApi.reducerPath]: subscriptionApi.reducer,
+    [invoiceApi.reducerPath]: invoiceApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -30,7 +32,8 @@ export const store = configureStore({
       unitApi.middleware,
       uploadApi.middleware,
       leaseApi.middleware,
-      subscriptionApi.middleware
+      subscriptionApi.middleware,
+      invoiceApi.middleware
     ),
 });
 

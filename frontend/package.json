@@ -28,6 +28,7 @@
     "chart.js": "^4.5.0",
     "clsx": "^2.1.1",
     "highlight.js": "^11.11.1",
+    "html2pdf.js": "^0.14.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.525.0",
     "metismenujs": "^1.4.0",

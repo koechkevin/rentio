@@ -2,10 +2,12 @@ import { useMemo } from 'react';
 import { useAppSelector } from '@/store/store';
 import { getMenuByRole } from '@/config/menu.config';
 import { MenuItem } from '@/config/menu.config';
+import { useCurrentProperty } from './useCurrentProperty';
 
 export const useMenuConfig = (): MenuItem[] => {
   const { user } = useAppSelector((state) => state.auth);
-
+  const { currentProperty } = useCurrentProperty();
+  const userPropertyRoles = currentProperty?.userPropertyRoles?.map((upr) => upr.role) || ['USER'];
   const filteredMenu = useMemo(() => {
     if (!user) {
       return [];
@@ -20,7 +22,7 @@ export const useMenuConfig = (): MenuItem[] => {
       userRoles.push(...propertyRoles);
     }
 
-    return getMenuByRole(userRoles);
+    return getMenuByRole(userPropertyRoles);
   }, [user]);
 
   return filteredMenu;
