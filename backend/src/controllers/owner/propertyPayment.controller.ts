@@ -155,10 +155,14 @@ export const handleIPN = async (
     const { OrderTrackingId, OrderMerchantReference, OrderNotificationType } =
       req.body;
     //   Forward response to local instance on URL https://ef28-105-163-157-5.ngrok-free.app/api/v1/property-payments/ipn
-    const resp = await axios.post(IPN_URL, req.body);
-    if (resp) {
-      console.log("IPN forwarded successfully:", resp.data);
-      return res.status(200).json({ status: "received" });
+    const isProd = process.env.NODE_ENV === "production";
+    if (!isProd) {
+      const devUrl = `https://ef28-105-163-157-5.ngrok-free.app/api/v1/property-payments/ipn`;
+      const resp = await axios.post(devUrl, req.body);
+      if (resp) {
+        console.log("IPN forwarded successfully:", resp.data);
+        return res.status(200).json({ status: "received" });
+      }
     }
     console.log("Pesapal IPN received:", {
       OrderTrackingId,
