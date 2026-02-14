@@ -29,8 +29,8 @@ router.post(
   authorizeProperty(PropertyRole.OWNER),
   roleController.assignRole,
 );
-router.post(
-  "/properties/:propertyId/remove-role",
+router.delete(
+  "/properties/:propertyId/users/:userId/revoke",
   authorizeProperty(PropertyRole.OWNER),
   roleController.removeRole,
 );
@@ -125,7 +125,11 @@ router.get("/subscription/check", subscriptionController.checkUnitAvailability);
  *       200:
  *         description: List of properties
  */
-router.get("/properties", propertyController.getProperties);
+router.get(
+  "/properties",
+  authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
+  propertyController.getProperties,
+);
 
 /**
  * @swagger

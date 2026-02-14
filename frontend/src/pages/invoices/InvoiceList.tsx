@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Row, Col, Card, Table, Badge, Button, Spinner, Alert, Form, InputGroup } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Eye, Trash2, Download, Plus, Search } from 'lucide-react';
 import { InvoiceStatus, type Invoice } from '../../types/invoice.types';
 import { useGetInvoicesQuery, useDeleteInvoiceMutation } from '../../services/api/invoiceApi';
+import { useAppSelector } from '@/store/store';
 
 const InvoiceList = () => {
   const navigate = useNavigate();
+  const currentPropertyId = useAppSelector((state) => state.property.currentPropertyId);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,6 +30,14 @@ const InvoiceList = () => {
 
   const invoices = data?.data || [];
   const totalPages = data?.pagination?.totalPages || 1;
+
+  useEffect(() => {
+    if (currentPropertyId) {
+      refetch();
+      setCurrentPage(1); // Reset to first page when property changes
+    }
+  }, [currentPropertyId, refetch]);
+  console.log(currentPropertyId);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this invoice?')) return;

@@ -1,10 +1,5 @@
-import { ArrowUp, ArrowDown } from 'lucide-react';
-import { Button, Row, Card, Col, ButtonGroup } from 'react-bootstrap';
-import CustomersChart from './components/CustomersChart';
-import OrdersChart from './components/OrdersChart';
-import GrowthChart from './components/GrowthChart';
+import { Row, Card, Col } from 'react-bootstrap';
 import CardActionsDropdown from './components/CardActionsDropdown';
-import RevenueChart from './components/RevenueChart';
 import SalesChart from './components/SalesChart';
 import IssuesStats from './components/IssuesStats';
 import RecentUnitActivity from './components/RecentUnitActivity';

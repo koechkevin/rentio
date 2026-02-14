@@ -55,7 +55,20 @@ export const getProperties = async (
 ) => {
   try {
     const properties = await prisma.property.findMany({
-      where: { ownerId: req.user!.id, deletedAt: null },
+      where: {
+        OR: [
+          { ownerId: req.user!.id, deletedAt: null },
+          {
+            userPropertyRoles: {
+              some: {
+                userId: req.user!.id,
+                removedAt: null,
+              },
+            },
+            deletedAt: null,
+          },
+        ],
+      },
       include: {
         _count: { select: { units: true } },
         userPropertyRoles: {

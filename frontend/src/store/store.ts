@@ -11,7 +11,9 @@ import { subscriptionApi } from '../services/api/subscriptionApi';
 import { invoiceApi } from '../services/api/invoiceApi';
 import { paymentApi } from '../services/api/paymentApi';
 import { dashboardApi } from '../services/api/dashboardApi';
+import { propertyInvoiceApi } from '../services/api/propertyInvoiceApi';
 import propertyReducer from './slices/propertySlice';
+import { userApi } from '../services/api/userApi';
 
 export const store = configureStore({
   reducer: {
@@ -27,9 +29,13 @@ export const store = configureStore({
     [invoiceApi.reducerPath]: invoiceApi.reducer,
     [paymentApi.reducerPath]: paymentApi.reducer,
     [dashboardApi.reducerPath]: dashboardApi.reducer,
+    [propertyInvoiceApi.reducerPath]: propertyInvoiceApi.reducer,
+    [userApi.reducerPath]: userApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(
+    getDefaultMiddleware({
+      serializableCheck: {},
+    }).concat(
       authApi.middleware,
       userProfileApi.middleware,
       propertyApi.middleware,
@@ -39,7 +45,9 @@ export const store = configureStore({
       subscriptionApi.middleware,
       invoiceApi.middleware,
       paymentApi.middleware,
-      dashboardApi.middleware
+      dashboardApi.middleware,
+      propertyInvoiceApi.middleware,
+      userApi.middleware
     ),
 });
 

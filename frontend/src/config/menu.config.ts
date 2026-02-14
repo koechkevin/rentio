@@ -106,6 +106,12 @@ const ADMIN_MENU: MenuItem[] = [
     roles: ['OWNER', 'ADMIN'],
     link: '/system/users',
   },
+  {
+    label: 'Billing',
+    icon: DollarSign,
+    roles: ['OWNER', 'ADMIN'],
+    link: '/billing/invoices',
+  },
   // {
   //   label: 'Settings',
   //   icon: Settings,

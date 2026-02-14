@@ -517,3 +517,27 @@ export const resetPassword = async (
     next(error);
   }
 };
+
+export const checkEmailExists = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      throw new AppError("Email is required", 400);
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    res.json({
+      exists: !!user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

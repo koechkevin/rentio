@@ -6,6 +6,7 @@ import { Router } from "express";
 import userProfileRoutes from "./userProfile.routes";
 import uploadRoutes from "./upload.routes";
 import invoiceRoutes from "./invoice.routes";
+import propertyInvoiceRoutes from "./owner/propertyInvoice.routes";
 import { authenticate } from "../middleware/auth";
 
 const router = Router();
@@ -17,5 +18,6 @@ router.use(`/public`, publicRoutes);
 router.use(`/user-profile`, userProfileRoutes);
 router.use(`/uploads`, authenticate, uploadRoutes);
 router.use(`/invoices`, invoiceRoutes);
+router.use("/property-invoices", propertyInvoiceRoutes);
 
 export default router;

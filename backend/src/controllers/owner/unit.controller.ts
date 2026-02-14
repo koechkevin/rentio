@@ -12,24 +12,39 @@ export const createUnit = async (
   try {
     const { unitNumber, type, monthlyRent, floor, description } = req.body;
 
-    // Check subscription availability
-    const subscription = await prisma.propertySubscription.findUnique({
-      where: { propertyId: req.propertyId! },
+    // Check for pending or overdue property invoices
+    const pendingInvoices = await prisma.propertyInvoice.findMany({
+      where: {
+        propertyId: req.propertyId!,
+        status: {
+          in: ["PENDING", "OVERDUE"],
+        },
+      },
+      orderBy: { dueDate: "asc" },
     });
 
-    if (!subscription) {
-      throw new AppError(
-        "No active subscription. Please purchase unit slots first.",
-        403,
+    if (pendingInvoices.length > 0) {
+      const overdueInvoices = pendingInvoices.filter(
+        (inv) => inv.status === "OVERDUE",
       );
-    }
 
-    const availableUnits = subscription.paidUnits - subscription.usedUnits;
+      if (overdueInvoices.length > 0) {
+        throw new AppError(
+          `You have ${overdueInvoices.length} overdue invoice(s). Please settle outstanding invoices before adding new units.`,
+          403,
+        );
+      }
 
-    if (availableUnits <= 0) {
-      throw new AppError(
-        "No available unit slots. Please purchase more slots to add units.",
-        403,
+      // Check if total pending amount exceeds a threshold (optional business rule)
+      const totalPending = pendingInvoices.reduce(
+        (sum, inv) => sum + Number(inv.totalAmount),
+        0,
+      );
+
+      // Allow adding units if pending invoices exist but are not overdue
+      // You can adjust this logic based on business requirements
+      console.log(
+        `Property has ${pendingInvoices.length} pending invoice(s) totaling ${totalPending}`,
       );
     }
 
@@ -42,14 +57,6 @@ export const createUnit = async (
         monthlyRent,
         floor,
         description,
-      },
-    });
-
-    // Increment used units
-    await prisma.propertySubscription.update({
-      where: { id: subscription.id },
-      data: {
-        usedUnits: { increment: 1 },
       },
     });
 

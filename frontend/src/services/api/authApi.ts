@@ -184,6 +184,13 @@ export const authApi = createApi({
         body: data,
       }),
     }),
+    checkEmailExists: builder.mutation<{ success: boolean; exists: boolean }, { email: string }>({
+      query: (data) => ({
+        url: '/auth/check-email',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -197,4 +204,5 @@ export const {
   useGetCurrentUserQuery,
   useForgotPasswordMutation,
   useResetPasswordMutation,
+  useCheckEmailExistsMutation,
 } = authApi;

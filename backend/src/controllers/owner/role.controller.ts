@@ -3,6 +3,8 @@ import prisma from "../../utils/prisma";
 import { AppError } from "../../middleware/errorHandler";
 import { AuthRequest } from "../../middleware/auth";
 import { PropertyRole } from "@prisma/client";
+import { resetPasswordUtil } from "../auth.controller";
+import bcrypt from "bcrypt";
 
 export const assignRole = async (
   req: AuthRequest,
@@ -11,7 +13,11 @@ export const assignRole = async (
 ) => {
   try {
     const { propertyId } = req.params;
-    const { userId, role } = req.body;
+    const { email, nationalId, phone, role } = req.body;
+
+    if (!email) {
+      throw new AppError("Email is required", 400);
+    }
 
     // Verify property exists and user is owner
     const property = await prisma.property.findFirst({
@@ -22,19 +28,52 @@ export const assignRole = async (
       throw new AppError("Property not found", 404);
     }
 
-    // Verify target user exists
-    const targetUser = await prisma.user.findUnique({
-      where: { id: userId },
+    // Check if user exists by email
+    let targetUser = await prisma.user.findUnique({
+      where: { email },
     });
 
+    let userCreated = false;
+
+    // If user doesn't exist, create them
     if (!targetUser) {
-      throw new AppError("User not found", 404);
+      if (!nationalId || !phone) {
+        throw new AppError(
+          "Email, nationalId, and phone are required for new users",
+          400,
+        );
+      }
+      const tempPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcrypt.hash(tempPassword, 10);
+      targetUser = await prisma.user.create({
+        data: {
+          email,
+          nationalId,
+          phone,
+          fullName: email.split("@")[0],
+          status: "INACTIVE",
+          isEmailVerified: false,
+          password: hashedPassword,
+        },
+      });
+
+      userCreated = true;
+
+      // Send password reset email
+      try {
+        await resetPasswordUtil(email);
+      } catch (emailError) {
+        throw new AppError(
+          "User created but failed to send password reset email. Please contact support.",
+          500,
+        );
+      }
     }
 
     // Check if role already exists
     const existingRole = await prisma.userPropertyRole.findFirst({
       where: {
-        userId,
+        userId: targetUser.id,
         propertyId,
         role: role as PropertyRole,
         removedAt: null,
@@ -48,13 +87,22 @@ export const assignRole = async (
     // Assign role
     const propertyRole = await prisma.userPropertyRole.create({
       data: {
-        userId,
+        userId: targetUser.id,
         propertyId,
         role: role as PropertyRole,
         assignedBy: req.user!.id,
       },
       include: {
-        user: { select: { id: true, fullName: true, phone: true } },
+        user: {
+          select: { id: true, fullName: true, phone: true, email: true },
+        },
+        assignedByUser: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
       },
     });
 
@@ -66,16 +114,20 @@ export const assignRole = async (
         action: "ASSIGN_ROLE",
         entity: "PropertyRole",
         entityId: propertyRole.id,
-        changes: { role, userId },
+        changes: { role, userId: targetUser.id, userCreated },
         ipAddress: req.ip,
         userAgent: req.get("user-agent"),
       },
     });
 
+    const message = userCreated
+      ? `New user created and ${role} role assigned to ${targetUser.email}. Password reset email sent.`
+      : `${role} role assigned to ${targetUser.fullName || targetUser.email}`;
+
     res.status(201).json({
       success: true,
       data: propertyRole,
-      message: `${role} role assigned to ${targetUser.fullName}`,
+      message,
     });
   } catch (error) {
     next(error);
@@ -88,8 +140,7 @@ export const removeRole = async (
   next: NextFunction,
 ) => {
   try {
-    const { propertyId } = req.params;
-    const { userId, role } = req.body;
+    const { propertyId, userId } = req.params;
 
     // Verify property exists and user is owner
     const property = await prisma.property.findFirst({
@@ -105,7 +156,6 @@ export const removeRole = async (
       where: {
         userId,
         propertyId,
-        role: role as PropertyRole,
         removedAt: null,
       },
       include: {
@@ -116,9 +166,9 @@ export const removeRole = async (
     if (!propertyRole) {
       throw new AppError("Role assignment not found", 404);
     }
-
+    const isOwnerRole = propertyRole.role === PropertyRole.OWNER;
     // Prevent removing owner's own OWNER role
-    if (userId === req.user!.id && role === "OWNER") {
+    if (userId === req.user!.id && isOwnerRole) {
       throw new AppError("Cannot remove your own OWNER role", 400);
     }
 
@@ -136,7 +186,7 @@ export const removeRole = async (
         action: "REMOVE_ROLE",
         entity: "PropertyRole",
         entityId: propertyRole.id,
-        changes: { role, userId },
+        changes: { role: propertyRole.role, userId },
         ipAddress: req.ip,
         userAgent: req.get("user-agent"),
       },
@@ -145,7 +195,7 @@ export const removeRole = async (
     res.json({
       success: true,
       data: updated,
-      message: `${role} role removed from ${propertyRole.user.fullName}`,
+      message: `role removed from ${propertyRole.user.fullName}`,
     });
   } catch (error) {
     next(error);
@@ -159,6 +209,7 @@ export const getPropertyMembers = async (
 ) => {
   try {
     const { propertyId } = req.params;
+    const { role } = req.query;
 
     // Verify property exists
     const property = await prisma.property.findUnique({
@@ -170,7 +221,7 @@ export const getPropertyMembers = async (
     }
 
     const members = await prisma.userPropertyRole.findMany({
-      where: { propertyId, removedAt: null },
+      where: { propertyId, role: role as PropertyRole, removedAt: null },
       include: {
         user: {
           select: {
@@ -179,6 +230,13 @@ export const getPropertyMembers = async (
             phone: true,
             email: true,
             status: true,
+          },
+        },
+        assignedByUser: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
           },
         },
       },

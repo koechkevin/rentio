@@ -242,4 +242,39 @@ router.post("/forgot-password", authController.forgotPassword);
  */
 router.post("/reset-password", authController.resetPassword);
 
+/**
+ * @swagger
+ * /auth/check-email:
+ *   post:
+ *     summary: Check if email exists
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "john@example.com"
+ *     responses:
+ *       200:
+ *         description: Returns boolean indicating if email exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 exists:
+ *                   type: boolean
+ *       400:
+ *         description: Email is required
+ */
+router.post("/check-email", authenticate, authController.checkEmailExists);
+
 export default router;
