@@ -23,6 +23,7 @@
     "license": "MIT",
     "dependencies": {
         "@prisma/client": "^5.7.0",
+        "axios": "^1.13.5",
         "bcrypt": "^6.0.0",
         "bcryptjs": "^2.4.3",
         "cloudinary": "^2.9.0",
@@ -40,6 +41,7 @@
         "streamifier": "^0.1.1",
         "swagger-jsdoc": "^6.2.8",
         "swagger-ui-express": "^5.0.1",
+        "uuid": "^13.0.0",
         "winston": "^3.11.0"
     },
     "devDependencies": {

@@ -12,6 +12,7 @@ import { invoiceApi } from '../services/api/invoiceApi';
 import { paymentApi } from '../services/api/paymentApi';
 import { dashboardApi } from '../services/api/dashboardApi';
 import { propertyInvoiceApi } from '../services/api/propertyInvoiceApi';
+import { propertyPaymentApi } from '../services/api/propertyPaymentApi';
 import propertyReducer from './slices/propertySlice';
 import { userApi } from '../services/api/userApi';
 
@@ -30,6 +31,7 @@ export const store = configureStore({
     [paymentApi.reducerPath]: paymentApi.reducer,
     [dashboardApi.reducerPath]: dashboardApi.reducer,
     [propertyInvoiceApi.reducerPath]: propertyInvoiceApi.reducer,
+    [propertyPaymentApi.reducerPath]: propertyPaymentApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -47,6 +49,7 @@ export const store = configureStore({
       paymentApi.middleware,
       dashboardApi.middleware,
       propertyInvoiceApi.middleware,
+      propertyPaymentApi.middleware,
       userApi.middleware
     ),
 });

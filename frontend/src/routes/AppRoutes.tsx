@@ -17,6 +17,8 @@ const UserManagement = lazy(() => import('@/pages/users/UserManagement'));
 // Property Billing
 const PropertyInvoiceList = lazy(() => import('@/pages/billing/PropertyInvoiceList'));
 const PropertyInvoiceDetail = lazy(() => import('@/pages/billing/PropertyInvoiceDetail'));
+const PropertyPayments = lazy(() => import('@/pages/billing/PropertyPayments'));
+const PaymentCallback = lazy(() => import('@/pages/billing/PaymentCallback'));
 
 const MainLayout = lazy(() => import('@/layouts/MainLayout'));
 const AuthLayout = lazy(() => import('@/layouts/AuthLayout'));
@@ -89,6 +91,8 @@ const AppRoutes = () => {
             {/* Property Billing Routes */}
             <Route path="/billing/invoices" element={<PropertyInvoiceList />} />
             <Route path="/billing/invoices/:id" element={<PropertyInvoiceDetail />} />
+            <Route path="/billing/payments" element={<PropertyPayments />} />
+            <Route path="/billing/payment-callback" element={<PaymentCallback />} />
 
             {/* Invoice Management Routes */}
             <Route path="/finance/invoices" element={<InvoiceList />} />
