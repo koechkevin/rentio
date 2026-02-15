@@ -222,7 +222,6 @@ class PesapalService {
     orderTrackingId: string,
   ): Promise<PesapalTransactionStatus> {
     const token = await this.getAuthToken();
-
     try {
       const response = await axios.get<PesapalTransactionStatus>(
         `${this.baseUrl}/api/Transactions/GetTransactionStatus?orderTrackingId=${orderTrackingId}`,

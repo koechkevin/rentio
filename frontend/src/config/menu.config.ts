@@ -107,13 +107,13 @@ const ADMIN_MENU: MenuItem[] = [
     link: '/system/users',
   },
   {
-    label: 'Billing',
+    label: 'Your Invoices',
     icon: DollarSign,
     roles: ['OWNER', 'ADMIN'],
     link: '/billing/invoices',
   },
   {
-    label: 'Payments',
+    label: 'My Payments',
     icon: DollarSign,
     roles: ['OWNER', 'ADMIN', 'CARETAKER'],
     link: '/billing/payments',

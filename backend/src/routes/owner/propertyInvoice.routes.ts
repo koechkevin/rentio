@@ -72,44 +72,4 @@ router.get(
  */
 router.get("/:id", authenticate, propertyInvoiceController.getPropertyInvoice);
 
-/**
- * @swagger
- * /property-invoices/{id}/payments:
- *   post:
- *     summary: Record payment for property invoice
- *     tags: [Property Invoices]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [amount]
- *             properties:
- *               amount:
- *                 type: number
- *               paymentMethod:
- *                 type: string
- *               reference:
- *                 type: string
- *               mpesaReceipt:
- *                 type: string
- *     responses:
- *       201:
- *         description: Payment recorded
- */
-router.post(
-  "/:id/payments",
-  authenticate,
-  propertyInvoiceController.recordPropertyInvoicePayment,
-);
-
 export default router;

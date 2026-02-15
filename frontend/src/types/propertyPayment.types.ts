@@ -18,7 +18,7 @@ export interface PropertyPayment {
   amount: number;
   allocatedAmount: number;
   unallocatedAmount: number;
-  paymentMethod: string;
+  method: string;
   reference?: string;
   mpesaReceipt?: string;
   pesapalOrderId?: string;
@@ -44,7 +44,9 @@ export interface PropertyBalance {
 }
 
 export interface PropertyBalanceSummary {
-  balance: PropertyBalance;
+  totalPaid: number;
+  totalAllocated: number;
+  unallocatedBalance: number;
   arrears: number;
   invoiceSummary: Array<{
     status: string;

@@ -16,7 +16,7 @@ export const generatePropertyInvoicePDF = (invoice: PropertyInvoice): void => {
 
   // Calculate totals from payments
   const totalPaid = invoice.payments
-    .filter((p) => p.status === 'COMPLETED')
+    .filter((p) => p?.payment?.status === 'COMPLETED')
     .reduce((sum, p) => sum + Number(p.amount), 0);
   const balance = Number(invoice.totalAmount) - totalPaid;
 
@@ -38,14 +38,14 @@ export const generatePropertyInvoicePDF = (invoice: PropertyInvoice): void => {
       
       <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
         <div style="width: 48%;">
-          <h3 style="font-size: 14px; margin-bottom: 10px; color: #000;">Bill To:</h3>
+          <h3 style="font-size: 14px; margin-bottom: 10px; color: #000;">Bill To</h3>
           <p style="margin: 5px 0; color: #000;">${invoice.property?.owner?.fullName || 'N/A'}</p>
           <p style="margin: 5px 0; color: #000;">${invoice.property?.owner?.email || 'N/A'}</p>
           <p style="margin: 5px 0; color: #000;">${invoice.property?.owner?.phone || 'N/A'}</p>
         </div>
         
         <div style="width: 48%; text-align: right;">
-          <h3 style="font-size: 14px; margin-bottom: 10px; color: #000;">Property Details:</h3>
+          <h3 style="font-size: 14px; margin-bottom: 10px; color: #000;">Property Details</h3>
           <p style="margin: 5px 0; color: #000;">${invoice.property?.name || 'N/A'}</p>
           <p style="margin: 5px 0; color: #000;">${invoice.property?.town || ''}, ${invoice.property?.county || ''}</p>
           <p style="margin: 5px 0; color: #000;">Occupied Units: ${invoice.occupiedUnits}</p>
@@ -57,7 +57,6 @@ export const generatePropertyInvoicePDF = (invoice: PropertyInvoice): void => {
           <tr>
             <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 11px;">Unit</th>
             <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 11px;">Type</th>
-            <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 11px;">Tenant</th>
             <th style="padding: 12px; text-align: left; font-weight: 600; font-size: 11px;">Description</th>
             <th style="padding: 12px; text-align: right; font-weight: 600; font-size: 11px;">Rate</th>
             <th style="padding: 12px; text-align: center; font-weight: 600; font-size: 11px;">Qty</th>
@@ -71,13 +70,12 @@ export const generatePropertyInvoicePDF = (invoice: PropertyInvoice): void => {
                   .map(
                     (item, index) => `
             <tr style="background-color: ${index % 2 === 0 ? '#ffffff' : '#f8f8f8'};">
-              <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${item.unitNumber}</td>
-              <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${item.unitType}</td>
-              <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${item.tenantName || '-'}</td>
-              <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${item.description || 'Monthly management fee'}</td>
-              <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; font-size: 11px; text-align: right;">${formatCurrency(item.unitAmount)}</td>
-              <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; font-size: 11px; text-align: center;">${item.quantity}</td>
-              <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; font-size: 11px; text-align: right;">${formatCurrency(item.total)}</td>
+              <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; color: #000; font-size: 11px;">${item.unitNumber}</td>
+              <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; color: #000; font-size: 11px;">${item.unitType}</td>
+              <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; color: #000; font-size: 11px;">${item.description || 'Monthly management fee'}</td>
+              <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; color: #000; font-size: 11px; text-align: right;">${formatCurrency(item.unitAmount)}</td>
+              <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; color: #000; font-size: 11px; text-align: center;">${item.quantity}</td>
+              <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; color: #000; font-size: 11px; text-align: right;">${formatCurrency(item.total)}</td>
             </tr>
           `
                   )
@@ -136,16 +134,16 @@ export const generatePropertyInvoicePDF = (invoice: PropertyInvoice): void => {
                 <th style="padding: 10px; text-align: right; font-weight: 600; font-size: 11px; border-bottom: 2px solid #ddd;">Amount</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody style="color: #000;">
               ${invoice.payments
                 .map(
                   (payment, index) => `
                 <tr style="background-color: ${index % 2 === 0 ? '#ffffff' : '#f8f8f8'};">
-                  <td style="padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${payment.paidAt ? formatDate(payment.paidAt) : '-'}</td>
-                  <td style="padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${payment.paymentMethod}</td>
-                  <td style="padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${payment.reference || payment.mpesaReceipt || '-'}</td>
-                  <td style="padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${payment.status}</td>
-                  <td style="padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 11px; text-align: right; color: #28a745; font-weight: 600;">${formatCurrency(payment.amount)}</td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${payment?.payment?.paidAt ? formatDate(payment?.payment?.paidAt) : '-'}</td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${payment?.payment?.mpesaReceipt || payment?.payment?.method || '-'}</td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${payment?.payment?.reference || payment?.payment?.mpesaReceipt || '-'}</td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 11px;">${payment?.payment?.status}</td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e0e0e0; font-size: 11px; text-align: right; color: #28a745; font-weight: 600;">${formatCurrency(payment?.amount)}</td>
                 </tr>
               `
                 )

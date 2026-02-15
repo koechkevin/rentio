@@ -127,7 +127,7 @@ export const createInvoice = async (
       },
     });
 
-    // Auto-allocate any unallocated payments to this invoice
+    // Auto-allocate any unallocated property payments to this invoice
     await autoAllocateToNewInvoice(invoice.id);
 
     // Fetch updated invoice with allocations

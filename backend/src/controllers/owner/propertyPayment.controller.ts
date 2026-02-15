@@ -8,6 +8,7 @@ import {
   autoAllocatePropertyPayment,
   calculatePropertyArrears,
 } from "../../services/propertyPayment.service";
+import { Prisma } from "@prisma/client";
 
 const CALLBACK_URL =
   process.env.PESAPAL_CALLBACK_URL ||
@@ -63,32 +64,21 @@ export const initializePayment = async (
       throw new AppError("Property not found or access denied", 404);
     }
 
-    // Get the first unpaid invoice for this property to link the payment
-    const firstUnpaidInvoice = await prisma.propertyInvoice.findFirst({
-      where: {
-        propertyId,
-        status: {
-          in: ["PENDING", "SENT", "OVERDUE"],
-        },
-      },
-      orderBy: { dueDate: "asc" },
-    });
-
-    if (!firstUnpaidInvoice) {
-      throw new AppError("No unpaid invoices found for this property", 400);
-    }
-
     // Generate unique order ID
     const orderId = `PROP-PAY-${uuidv4().substring(0, 8).toUpperCase()}`;
 
-    // Create pending payment record linked to the first unpaid invoice
-    const payment = await prisma.propertyInvoicePayment.create({
+    // Create pending payment record
+    const payment = await prisma.propertyPayment.create({
       data: {
-        invoiceId: firstUnpaidInvoice.id,
-        amount,
-        paymentMethod: "PESAPAL",
-        status: "PENDING",
+        propertyId,
+        amount: new Prisma.Decimal(amount),
+        allocatedAmount: new Prisma.Decimal(0),
+        unallocatedAmount: new Prisma.Decimal(amount),
+        type: "OTHER",
+        method: "PESAPAL",
         reference: orderId,
+        status: "PENDING",
+        createdBy: req.user!.id,
       },
     });
 
@@ -153,7 +143,6 @@ export const handleIPN = async (
   try {
     const { OrderTrackingId, OrderMerchantReference, OrderNotificationType } =
       req.body;
-    //   Forward response to local instance on URL https://ef28-105-163-157-5.ngrok-free.app/api/v1/property-payments/ipn
 
     console.log("Pesapal IPN received:", req.body);
     if (!OrderTrackingId) {
@@ -167,12 +156,9 @@ export const handleIPN = async (
     console.log("Transaction status:", transactionStatus);
 
     // Find the payment by reference (orderId)
-    const payment = await prisma.propertyInvoicePayment.findFirst({
+    const payment = await prisma.propertyPayment.findFirst({
       where: {
         reference: OrderMerchantReference,
-      },
-      include: {
-        invoice: true,
       },
     });
 
@@ -186,6 +172,9 @@ export const handleIPN = async (
       "PENDING";
 
     switch (transactionStatus.status_code) {
+      case 0:
+        paymentStatus = "PENDING";
+        break;
       case 1:
         paymentStatus = "COMPLETED";
         break;
@@ -199,20 +188,22 @@ export const handleIPN = async (
         paymentStatus = "PENDING";
     }
 
-    // Update payment
-    await prisma.propertyInvoicePayment.update({
+    // Update payment with full transaction response
+    await prisma.propertyPayment.update({
       where: { id: payment.id },
       data: {
         status: paymentStatus,
-        mpesaReceipt:
-          transactionStatus.payment_method === "MPESA"
-            ? transactionStatus.confirmation_code
-            : null,
+        mpesaReceipt: transactionStatus.payment_method
+          ?.toUpperCase()
+          .includes("MPESA")
+          ? transactionStatus.confirmation_code
+          : null,
         paidAt: paymentStatus === "COMPLETED" ? new Date() : null,
+        transactionResponse: JSON.parse(JSON.stringify(transactionStatus)),
       },
     });
 
-    // If payment completed, auto-allocate to invoices
+    // If payment completed, auto-allocate to invoices for this property
     if (paymentStatus === "COMPLETED") {
       await autoAllocatePropertyPayment(payment.id);
     }
@@ -240,32 +231,19 @@ export const checkPaymentStatus = async (
   try {
     const { paymentId } = req.params;
 
-    const payment = await prisma.propertyInvoicePayment.findFirst({
-      where: {
-        id: paymentId,
-        invoice: {
-          property: {
-            OR: [
-              { ownerId: req.user!.id },
-              {
-                userPropertyRoles: {
-                  some: {
-                    userId: req.user!.id,
-                    removedAt: null,
-                  },
-                },
-              },
-            ],
-          },
-        },
-      },
+    const payment = await prisma.propertyPayment.findUnique({
+      where: { id: paymentId },
       include: {
-        invoice: {
-          select: {
-            id: true,
-            invoiceNumber: true,
-            totalAmount: true,
-            status: true,
+        allocations: {
+          include: {
+            invoice: {
+              select: {
+                id: true,
+                invoiceNumber: true,
+                totalAmount: true,
+                status: true,
+              },
+            },
           },
         },
       },
@@ -319,9 +297,7 @@ export const getPropertyPayments = async (
     }
 
     const where: any = {
-      invoice: {
-        propertyId,
-      },
+      propertyId,
     };
 
     if (status) {
@@ -331,14 +307,18 @@ export const getPropertyPayments = async (
     const skip = (Number(page) - 1) * Number(limit);
 
     const [payments, total] = await Promise.all([
-      prisma.propertyInvoicePayment.findMany({
+      prisma.propertyPayment.findMany({
         where,
         include: {
-          invoice: {
-            select: {
-              id: true,
-              invoiceNumber: true,
-              totalAmount: true,
+          allocations: {
+            include: {
+              invoice: {
+                select: {
+                  id: true,
+                  invoiceNumber: true,
+                  totalAmount: true,
+                },
+              },
             },
           },
         },
@@ -346,7 +326,7 @@ export const getPropertyPayments = async (
         skip,
         take: Number(limit),
       }),
-      prisma.propertyInvoicePayment.count({ where }),
+      prisma.propertyPayment.count({ where }),
     ]);
 
     res.json({
@@ -410,9 +390,31 @@ export const getPropertyBalanceSummary = async (
       },
     });
 
+    // Calculate total paid
+    const totalPaidResult = await prisma.propertyPayment.aggregate({
+      where: {
+        propertyId,
+        status: "COMPLETED",
+      },
+      _sum: { amount: true },
+    });
+
+    // Calculate total unallocated amount
+    const totalUnallocatedResult = await prisma.propertyPayment.aggregate({
+      where: {
+        propertyId,
+        status: "COMPLETED",
+      },
+      _sum: { unallocatedAmount: true },
+    });
+
     res.json({
       success: true,
       data: {
+        totalPaid: Number(totalPaidResult._sum.amount || 0),
+        unallocatedBalance: Number(
+          totalUnallocatedResult._sum.unallocatedAmount || 0,
+        ),
         arrears,
         invoiceSummary,
       },

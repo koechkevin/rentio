@@ -37,10 +37,6 @@ const PropertyInvoiceDetail = () => {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   if (isLoading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
@@ -60,7 +56,7 @@ const PropertyInvoiceDetail = () => {
   }
 
   const totalPaid = invoice.payments
-    .filter((p) => p.status === 'COMPLETED')
+    .filter((p) => p.payment?.status === 'COMPLETED')
     .reduce((sum, p) => sum + Number(p.amount), 0);
   const balance = Number(invoice.totalAmount) - totalPaid;
 
@@ -72,7 +68,7 @@ const PropertyInvoiceDetail = () => {
           Back to Invoices
         </Button>
         <div>
-          <Button variant="outline-primary" className="me-2" onClick={handlePrint}>
+          <Button variant="outline-primary" className="me-2" onClick={handleDownloadPDF}>
             <Printer size={16} className="me-2" />
             Print
           </Button>
@@ -228,8 +224,8 @@ const PropertyInvoiceDetail = () => {
                 <thead className="table-light">
                   <tr>
                     <th>Date</th>
-                    <th>Method</th>
                     <th>Reference</th>
+                    <th>Confirmation Code</th>
                     <th className="text-end">Amount</th>
                     <th>Status</th>
                   </tr>
@@ -237,12 +233,14 @@ const PropertyInvoiceDetail = () => {
                 <tbody>
                   {invoice.payments.map((payment) => (
                     <tr key={payment.id}>
-                      <td>{payment.paidAt ? new Date(payment.paidAt).toLocaleDateString() : '-'}</td>
-                      <td>{payment.paymentMethod}</td>
-                      <td>{payment.reference || payment.mpesaReceipt || '-'}</td>
+                      <td>{payment.payment?.paidAt ? new Date(payment?.payment?.paidAt).toLocaleDateString() : '-'}</td>
+                      <td>{payment.payment?.reference || '-'}</td>
+                      <td>{payment.payment?.mpesaReceipt || '-'}</td>
                       <td className="text-end">{formatCurrency(payment.amount, invoice.currency)}</td>
                       <td>
-                        <Badge bg={payment.status === 'COMPLETED' ? 'success' : 'warning'}>{payment.status}</Badge>
+                        <Badge bg={payment.payment?.status === 'COMPLETED' ? 'success' : 'warning'}>
+                          {payment?.payment?.status}
+                        </Badge>
                       </td>
                     </tr>
                   ))}

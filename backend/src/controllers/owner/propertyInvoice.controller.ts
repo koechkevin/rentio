@@ -120,6 +120,20 @@ export const getPropertyInvoice = async (
           orderBy: { unitNumber: "asc" },
         },
         payments: {
+          select: {
+            id: true,
+            amount: true,
+            payment: {
+              select: {
+                method: true,
+                reference: true,
+                mpesaReceipt: true,
+                status: true,
+                paidAt: true,
+                amount: true,
+              },
+            },
+          },
           orderBy: { createdAt: "desc" },
         },
       },
@@ -132,74 +146,6 @@ export const getPropertyInvoice = async (
     res.json({
       success: true,
       data: invoice,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const recordPropertyInvoicePayment = async (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { id } = req.params;
-    const { amount, paymentMethod, reference, mpesaReceipt } = req.body;
-
-    const invoice = await prisma.propertyInvoice.findFirst({
-      where: {
-        id,
-        property: {
-          ownerId: req.user!.id,
-        },
-      },
-    });
-
-    if (!invoice) {
-      throw new AppError("Invoice not found", 404);
-    }
-
-    if (invoice.status === "PAID") {
-      throw new AppError("Invoice already paid", 400);
-    }
-
-    const payment = await prisma.propertyInvoicePayment.create({
-      data: {
-        invoiceId: id,
-        amount,
-        paymentMethod: paymentMethod || "MPESA",
-        reference,
-        mpesaReceipt,
-        status: "COMPLETED",
-        paidAt: new Date(),
-      },
-    });
-
-    // Calculate total paid
-    const totalPaid = await prisma.propertyInvoicePayment.aggregate({
-      where: { invoiceId: id, status: "COMPLETED" },
-      _sum: { amount: true },
-    });
-
-    const paidAmount = Number(totalPaid._sum.amount || 0);
-    const invoiceTotal = Number(invoice.totalAmount);
-
-    // Update invoice status if fully paid
-    if (paidAmount >= invoiceTotal) {
-      await prisma.propertyInvoice.update({
-        where: { id },
-        data: {
-          status: "PAID",
-          paidAt: new Date(),
-        },
-      });
-    }
-
-    res.status(201).json({
-      success: true,
-      data: payment,
-      message: "Payment recorded successfully",
     });
   } catch (error) {
     next(error);

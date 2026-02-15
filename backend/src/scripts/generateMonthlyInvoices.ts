@@ -1,3 +1,4 @@
+import { autoAllocateToNewPropertyInvoice } from "../services/propertyPayment.service";
 import prisma from "../utils/prisma";
 
 interface BillingConfigMap {
@@ -240,7 +241,7 @@ const generateMonthlyInvoices = async () => {
 
         return newInvoice;
       });
-
+      await autoAllocateToNewPropertyInvoice(invoice.id);
       console.log(
         `Created invoice ${invoice.invoiceNumber} for ${property.name}:`,
       );

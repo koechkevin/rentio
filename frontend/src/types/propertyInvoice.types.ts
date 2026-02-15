@@ -8,14 +8,15 @@ export enum PropertyInvoiceStatus {
 
 export interface PropertyInvoicePayment {
   id: string;
-  invoiceId: string;
   amount: number;
-  paymentMethod: string;
-  reference?: string;
-  mpesaReceipt?: string;
-  status: string;
-  paidAt?: string;
   createdAt: string;
+  payment?: {
+    method: string;
+    reference?: string;
+    mpesaReceipt?: string;
+    status: string;
+    paidAt?: string;
+  };
 }
 
 export interface PropertyInvoiceItem {

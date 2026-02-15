@@ -113,7 +113,7 @@ const PropertyPayments = () => {
             <Card.Body>
               <DollarSign size={32} className="text-success mb-2" />
               <h6 className="text-muted">Total Paid</h6>
-              <h3>{formatCurrency(balance?.balance?.totalPaid || 0)}</h3>
+              <h3>{formatCurrency(balance?.totalPaid || 0)}</h3>
             </Card.Body>
           </Card>
         </Col>
@@ -122,7 +122,7 @@ const PropertyPayments = () => {
             <Card.Body>
               <RefreshCw size={32} className="text-info mb-2" />
               <h6 className="text-muted">Unallocated Balance</h6>
-              <h3>{formatCurrency(balance?.balance?.unallocatedBalance || 0)}</h3>
+              <h3>{formatCurrency(balance?.unallocatedBalance || 0)}</h3>
             </Card.Body>
           </Card>
         </Col>
@@ -164,7 +164,8 @@ const PropertyPayments = () => {
                   <th>Reference</th>
                   <th>Method</th>
                   <th>Amount</th>
-
+                  <th>Allocated</th>
+                  <th>Unallocated</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -180,10 +181,10 @@ const PropertyPayments = () => {
                     <tr key={payment.id}>
                       <td>{payment.paidAt ? new Date(payment.paidAt).toLocaleDateString() : '-'}</td>
                       <td>{payment.reference || payment.mpesaReceipt || payment.pesapalOrderId || '-'}</td>
-                      <td>{payment.paymentMethod}</td>
+                      <td>{payment.method}</td>
                       <td>{formatCurrency(payment.amount)}</td>
-                      {/* <td className="text-success">{formatCurrency(payment.allocatedAmount)}</td> */}
-                      {/* <td className="text-warning">{formatCurrency(payment.unallocatedAmount)}</td> */}
+                      <td className="text-success">{formatCurrency(payment.allocatedAmount)}</td>
+                      <td className="text-warning">{formatCurrency(payment.unallocatedAmount)}</td>
                       <td>
                         <Badge bg={getStatusVariant(payment.status)}>{payment.status}</Badge>
                       </td>
