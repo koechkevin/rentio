@@ -164,8 +164,7 @@ const PropertyPayments = () => {
                   <th>Reference</th>
                   <th>Method</th>
                   <th>Amount</th>
-                  <th>Allocated</th>
-                  <th>Unallocated</th>
+
                   <th>Status</th>
                 </tr>
               </thead>
@@ -183,8 +182,8 @@ const PropertyPayments = () => {
                       <td>{payment.reference || payment.mpesaReceipt || payment.pesapalOrderId || '-'}</td>
                       <td>{payment.paymentMethod}</td>
                       <td>{formatCurrency(payment.amount)}</td>
-                      <td className="text-success">{formatCurrency(payment.allocatedAmount)}</td>
-                      <td className="text-warning">{formatCurrency(payment.unallocatedAmount)}</td>
+                      {/* <td className="text-success">{formatCurrency(payment.allocatedAmount)}</td> */}
+                      {/* <td className="text-warning">{formatCurrency(payment.unallocatedAmount)}</td> */}
                       <td>
                         <Badge bg={getStatusVariant(payment.status)}>{payment.status}</Badge>
                       </td>
