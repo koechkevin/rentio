@@ -149,12 +149,7 @@ const PropertyPayments = () => {
                 <Plus size={16} className="me-2" />
                 Record Manual Payment
               </Button>
-              <Button
-                variant="primary"
-                href="https://store.pesapal.com/rentiopayments"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <Button variant="primary" onClick={() => setShowPaymentModal(true)}>
                 <CreditCard size={16} className="me-2" />
                 Pay Online
               </Button>

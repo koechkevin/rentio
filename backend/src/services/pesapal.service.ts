@@ -18,7 +18,7 @@ interface PesapalAuthResponse {
 interface PesapalOrderRequest {
   id: string;
   currency: string;
-  amount: number;
+  amount: number | string;
   description: string;
   callback_url: string;
   notification_id: string;
@@ -89,6 +89,10 @@ class PesapalService {
       return this.token;
     }
 
+    console.log({
+      consumer_key: this.config.consumerKey,
+      consumer_secret: this.config.consumerSecret,
+    });
     try {
       const response = await axios.post<PesapalAuthResponse>(
         `${this.baseUrl}/api/Auth/RequestToken`,
@@ -104,7 +108,7 @@ class PesapalService {
         },
       );
 
-      if (response.data.error || response.data.status !== "200") {
+      if (response.data.error) {
         throw new AppError(
           response.data.message || "Failed to authenticate with Pesapal",
           500,
@@ -116,10 +120,7 @@ class PesapalService {
 
       return this.token;
     } catch (error: any) {
-      console.error(
-        "Pesapal auth error:",
-        error.response?.data || error.message,
-      );
+      console.error("Pesapal auth error:", error.response);
       throw new AppError("Failed to authenticate with Pesapal", 500);
     }
   }
@@ -152,10 +153,7 @@ class PesapalService {
 
       return response.data;
     } catch (error: any) {
-      console.error(
-        "Pesapal IPN registration error:",
-        error.response?.data || error.message,
-      );
+      console.error("Pesapal IPN registration error:", error.response);
       throw new AppError("Failed to register IPN URL with Pesapal", 500);
     }
   }

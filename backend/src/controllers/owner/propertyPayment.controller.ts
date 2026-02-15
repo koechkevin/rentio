@@ -8,7 +8,6 @@ import {
   autoAllocatePropertyPayment,
   calculatePropertyArrears,
 } from "../../services/propertyPayment.service";
-import axios from "axios";
 
 const CALLBACK_URL =
   process.env.PESAPAL_CALLBACK_URL ||
@@ -114,7 +113,7 @@ export const initializePayment = async (
     const orderRequest = {
       id: orderId,
       currency: "KES",
-      amount: Number(amount),
+      amount: Number(amount).toFixed(2),
       description: description || `Property payment for ${property.name}`,
       callback_url: CALLBACK_URL,
       notification_id: ipnId,
@@ -155,21 +154,8 @@ export const handleIPN = async (
     const { OrderTrackingId, OrderMerchantReference, OrderNotificationType } =
       req.body;
     //   Forward response to local instance on URL https://ef28-105-163-157-5.ngrok-free.app/api/v1/property-payments/ipn
-    const isProd = process.env.NODE_ENV === "production";
-    if (!isProd) {
-      const devUrl = `https://ef28-105-163-157-5.ngrok-free.app/api/v1/property-payments/ipn`;
-      const resp = await axios.post(devUrl, req.body);
-      if (resp) {
-        console.log("IPN forwarded successfully:", resp.data);
-        return res.status(200).json({ status: "received" });
-      }
-    }
-    console.log("Pesapal IPN received:", {
-      OrderTrackingId,
-      OrderMerchantReference,
-      OrderNotificationType,
-    });
 
+    console.log("Pesapal IPN received:", req.body);
     if (!OrderTrackingId) {
       return res.status(200).json({ status: "received" });
     }
