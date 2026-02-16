@@ -198,10 +198,17 @@ export const login = async (
   next: NextFunction,
 ) => {
   try {
-    const { phone, password } = req.body;
+    const { emailOrPhone, password } = req.body;
 
-    const user = await prisma.user.findUnique({
-      where: { phone },
+    if (!emailOrPhone || !password) {
+      throw new AppError("Email or phone and password are required", 400);
+    }
+
+    // Find user by either email or phone
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ email: emailOrPhone }, { phone: emailOrPhone }],
+      },
       include: {
         userPropertyRoles: {
           where: { removedAt: null },

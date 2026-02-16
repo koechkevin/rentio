@@ -11,7 +11,7 @@ const LoginPage = () => {
   const dispatch = useAppDispatch();
   const [login, { isLoading }] = useLoginMutation();
 
-  const [phone, setPhone] = useState('');
+  const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +21,7 @@ const LoginPage = () => {
     setError(null);
 
     try {
-      const result = await login({ phone, password }).unwrap();
+      const result = await login({ emailOrPhone, password }).unwrap();
 
       dispatch(
         setCredentials({
@@ -59,17 +59,18 @@ const LoginPage = () => {
                 {error}
               </Alert>
             )}
-            <Form.Group className="mb-3" controlId="loginPhone">
-              <Form.Label>Phone number</Form.Label>
+            <Form.Group className="mb-3" controlId="loginEmailOrPhone">
+              <Form.Label>Email or Phone Number</Form.Label>
               <Form.Control
-                type="tel"
-                placeholder="Phone"
-                autoComplete="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                type="text"
+                placeholder="Enter your email or phone number"
+                autoComplete="email"
+                value={emailOrPhone}
+                onChange={(e) => setEmailOrPhone(e.target.value)}
                 disabled={isLoading}
                 required
               />
+              <Form.Text className="text-muted">You can use either your email address or phone number</Form.Text>
             </Form.Group>
             <Form.Group className="mb-3" controlId="loginPassword">
               <Form.Label>Password</Form.Label>

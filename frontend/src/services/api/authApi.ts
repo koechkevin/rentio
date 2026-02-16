@@ -4,7 +4,7 @@ import { baseQueryWithReauth } from './baseQueryWithReauth';
 import { API_CONFIG } from '@/config/api';
 
 export interface LoginRequest {
-  phone: string;
+  emailOrPhone: string;
   password: string;
 }
 

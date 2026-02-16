@@ -3,25 +3,25 @@ import { Building2, Home, Users, DollarSign } from 'lucide-react';
 import { useCurrentProperty } from '../../../hooks/useCurrentProperty';
 import { useGetUnitsQuery } from '../../../services/api/unitApi';
 import { useGetLeasesQuery } from '../../../services/api/leaseApi';
-import { useGetSubscriptionQuery } from '../../../services/api/subscriptionApi';
 
 const PropertyStats = () => {
   const { currentPropertyId, currentProperty } = useCurrentProperty();
 
   const { data: unitsData } = useGetUnitsQuery(currentPropertyId!, { skip: !currentPropertyId });
   const { data: leasesData } = useGetLeasesQuery(currentPropertyId!, { skip: !currentPropertyId });
-  const { data: subscriptionData } = useGetSubscriptionQuery(currentPropertyId!, { skip: !currentPropertyId });
 
   const units = unitsData?.data || [];
   const leases = leasesData?.data || [];
-  const subscription = subscriptionData?.data;
 
   const totalUnits = units.length;
-  const occupiedUnits = units.filter((u) => u.leases?.some((l: any) => l.active)).length;
-  const activeLeases = leases.filter((l) => l.active).length;
-  const totalRent = leases.filter((l) => l.active).reduce((sum, l) => sum + parseFloat(l.agreedRent.toString()), 0);
+  const occupiedUnitLeases = units.filter((u) => u.leases?.some((l: any) => l.active));
+  const occupiedUnits = occupiedUnitLeases.length;
+  const activeLeases = occupiedUnits;
+  const allLeasesFromUnits = units.flatMap((u) => u.leases || []);
+  const totalRent = allLeasesFromUnits
+    .filter((l) => l.active)
+    .reduce((sum, l) => sum + parseFloat(l.agreedRent.toString()), 0);
 
-  console.log(leases);
   if (!currentProperty) {
     return null;
   }
@@ -94,9 +94,7 @@ const PropertyStats = () => {
               </div>
               <div>
                 <h6 className="mb-0 text-muted">Unit Slots</h6>
-                <h3 className="mb-0">
-                  {subscription?.availableUnits || 0}/{subscription?.paidUnits || 0}
-                </h3>
+                <h3 className="mb-0">{totalUnits - occupiedUnits}</h3>
               </div>
             </div>
             <small className="text-muted">Available slots for new units</small>
