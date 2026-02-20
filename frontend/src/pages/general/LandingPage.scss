@@ -1,0 +1,268 @@
+.landing-page {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+
+  .navbar {
+    width: 100%;
+    left: 0;
+  }
+
+  /* Gradient text */
+  .rentio-gradient {
+    background: linear-gradient(135deg, #06B6D4 0%, #0EA5E9 50%, #3B82F6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .rentio-brand {
+    background: linear-gradient(135deg, #06B6D4 0%, #0EA5E9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Primary button styling */
+  .rentio-btn-primary {
+    background: linear-gradient(135deg, #06B6D4 0%, #0EA5E9 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.5);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  /* Hero section background animation */
+  .hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: 6rem;
+
+    .animated-bg-gradient {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(600px at 20% 50%,
+          rgba(6, 182, 212, 0.15) 0%,
+          transparent 80%);
+      animation: gradientShift 8s ease-in-out infinite;
+      z-index: 0;
+    }
+  }
+
+  /* Stats section background */
+  .bg-dark-gradient {
+    background: linear-gradient(to bottom, #111111 0%, #0a0a0a 100%);
+  }
+
+  /* Feature cards */
+  .feature-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #06b6d4;
+      background-color: rgba(6, 182, 212, 0.05);
+    }
+
+    .feature-icon {
+      transition: all 0.3s ease;
+    }
+  }
+
+  /* Trusted box */
+  .trusted-box {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, transparent 100%);
+  }
+
+  /* CTA section */
+  .cta-section {
+    position: relative;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+
+    .animated-bg-gradient-cta {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(600px at 50% 50%,
+          rgba(6, 182, 212, 0.2) 0%,
+          transparent 80%);
+      animation: gradientShift 8s ease-in-out infinite;
+      z-index: 0;
+    }
+  }
+
+  /* Floating orbs */
+  .floating-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: 0;
+
+    &.floating-orb-1 {
+      top: 20%;
+      right: 5%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle,
+          rgba(6, 182, 212, 0.3) 0%,
+          rgba(6, 182, 212, 0) 70%);
+    }
+
+    &.floating-orb-2 {
+      bottom: 20%;
+      left: 5%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle,
+          rgba(59, 130, 246, 0.3) 0%,
+          rgba(59, 130, 246, 0) 70%);
+    }
+  }
+
+  /* Navbar backdrop */
+  .navbar-backdrop {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Footer links */
+  .footer-link {
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: #06b6d4 !important;
+    }
+  }
+
+  /* Benefit items */
+  .benefit-item {
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateX(5px);
+    }
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(6, 182, 212, 0.5);
+    border-radius: 5px;
+
+    &:hover {
+      background: rgba(6, 182, 212, 0.8);
+    }
+  }
+
+  /* Smooth transitions */
+  * {
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+  }
+
+  /* Prevent layout shift on hover */
+  button {
+    backface-visibility: hidden;
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+
+    h1,
+    .display-3 {
+      font-size: 2.5rem !important;
+    }
+
+    h2,
+    .display-4 {
+      font-size: 2rem !important;
+    }
+
+    .floating-orb {
+
+      &.floating-orb-1,
+      &.floating-orb-2 {
+        width: 250px;
+        height: 250px;
+      }
+    }
+  }
+
+}
+
+/* Animations */
+@keyframes gradientShift {
+  0% {
+    background: radial-gradient(600px at 20% 50%,
+        rgba(6, 182, 212, 0.15) 0%,
+        transparent 80%);
+  }
+
+  50% {
+    background: radial-gradient(600px at 80% 50%,
+        rgba(6, 182, 212, 0.15) 0%,
+        transparent 80%);
+  }
+
+  100% {
+    background: radial-gradient(600px at 20% 50%,
+        rgba(6, 182, 212, 0.15) 0%,
+        transparent 80%);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+
+/* Performance: Use GPU acceleration */
+.landing-page section {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Prevent text selection on buttons */
+button {
+  user-select: none;
+  -webkit-user-select: none;
+}

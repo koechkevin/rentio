@@ -39,6 +39,7 @@ const FaqPage = lazy(() => import('@/pages/general/FaqPage'));
 const InvoicePage = lazy(() => import('@/pages/general/InvoicePage'));
 const ProfilePage = lazy(() => import('@/pages/general/profile/ProfilePage'));
 const PricingPage = lazy(() => import('@/pages/general/PricingPage'));
+const LandingPage = lazy(() => import('@/pages/general/LandingPage'));
 
 // Invoice Management
 const InvoiceList = lazy(() => import('@/pages/invoices/InvoiceList'));
@@ -65,9 +66,10 @@ const AppRoutes = () => {
   return (
     <BrowserRouter basename={baseUrl}>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route element={<AuthGuard />}>
           <Route element={<MainLayout />}>
-            <Route index element={<Navigate to="/dashboard" />} />
+            <Route element={<Navigate to="/dashboard" />} />
             <Route
               path="dashboard"
               element={
