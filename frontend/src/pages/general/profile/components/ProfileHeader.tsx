@@ -3,7 +3,7 @@ import { Button, Modal, Form } from 'react-bootstrap';
 import { useUpdateUserProfileMutation } from '../../../../services/api/userProfileApi';
 
 interface UserProfile {
-  _id: string;
+  id: string;
   displayPicture?: string;
   backgroundPicture?: string;
   about?: string;

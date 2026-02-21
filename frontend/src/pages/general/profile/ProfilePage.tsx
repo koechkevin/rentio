@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Row, Col, Card, Nav, Tab } from 'react-bootstrap';
-import { useGetUserProfileQuery } from '../../../services/api/userProfileApi';
+import { Row, Col, Card, Nav, Tab, Alert, Button } from 'react-bootstrap';
 import ProfileHeader from './components/ProfileHeader';
 import ProfileNav from './components/ProfileNav';
 import ProfileAbout from './components/ProfileAbout';
@@ -11,31 +10,57 @@ import ProfileIssues from './components/ProfileIssues';
 import ProfileInvoices from './components/ProfileInvoices';
 import ProfilePayments from './components/ProfilePayments';
 import TenancyDetailsCard from './components/TenancyDetailsCard';
+import PhoneVerificationModal from './components/PhoneVerificationModal';
+import ChangePhoneModal from './components/ChangePhoneModal';
 import { useAppSelector } from '@/store/store';
+import { useGetCurrentUserQuery } from '@/services/api/authApi';
 
 const ProfilePage = () => {
   const user = useAppSelector((state) => state.auth.user);
   const userId = user?.id;
   const [activeTab, setActiveTab] = useState('timeline');
-  const {
-    data: userProfile,
-    isLoading,
-    error,
-  } = useGetUserProfileQuery('', {
-    skip: !userId,
-  });
+  const [showPhoneVerificationModal, setShowPhoneVerificationModal] = useState(false);
+  const [showChangePhoneModal, setShowChangePhoneModal] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { data: userData, isLoading, error } = useGetCurrentUserQuery();
+  const userProfile = userData?.data?.user || null;
+
+  const isPhoneVerified = userProfile?.isPhoneVerified || false;
+
+  const handlePhoneVerificationSuccess = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
 
   if (isLoading) return <div>Loading...</div>;
   if (error || !userProfile) return <div>Profile not found</div>;
 
   return (
     <>
+      {!isPhoneVerified ? (
+        <Row className="mb-3">
+          <Col xs={12}>
+            <Alert variant="warning" dismissible>
+              <Alert.Heading>Verify Your Phone Number</Alert.Heading>
+              <p>Your phone number is not verified. Please verify it to use all features.</p>
+              <Button variant="warning" onClick={() => setShowPhoneVerificationModal(true)}>
+                Verify Phone Number
+              </Button>
+            </Alert>
+          </Col>
+        </Row>
+      ) : null}
+
       <Row>
         <Col xs={12} className="grid-margin">
           <Card>
             <ProfileHeader userProfile={userProfile} userId={userId!} />
             <ProfileNav />
           </Card>
+        </Col>
+      </Row>
+      <Row className="mb-3">
+        <Col xs={12} className="d-flex justify-content-end">
+          <Button onClick={() => setShowChangePhoneModal(true)}>Change Phone Number</Button>
         </Col>
       </Row>
       <Row className="profile-body">
@@ -48,6 +73,7 @@ const ProfilePage = () => {
         </Col>
         {/* left wrapper end */}
         {/* middle wrapper start */}
+
         <Col md={8} xl={6} className="middle-wrapper">
           <Card>
             <Card.Body>
@@ -101,6 +127,20 @@ const ProfilePage = () => {
         </Col>
         {/* right wrapper end */}
       </Row>
+
+      <PhoneVerificationModal
+        show={showPhoneVerificationModal}
+        phoneNumber={userProfile?.phone || ''}
+        onClose={() => setShowPhoneVerificationModal(false)}
+        onSuccess={handlePhoneVerificationSuccess}
+      />
+
+      <ChangePhoneModal
+        show={showChangePhoneModal}
+        currentPhoneNumber={userProfile?.phone || ''}
+        onClose={() => setShowChangePhoneModal(false)}
+        onSuccess={handlePhoneVerificationSuccess}
+      />
     </>
   );
 };

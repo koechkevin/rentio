@@ -87,6 +87,7 @@ export interface CurrentUserResponse {
       website?: string;
       createdAt: string;
       updatedAt: string;
+      isPhoneVerified: boolean;
     };
     userPropertyRoles: Array<{
       propertyId: string;
@@ -191,6 +192,36 @@ export const authApi = createApi({
         body: data,
       }),
     }),
+    sendPhoneVerificationCode: builder.mutation<
+      { success: boolean; message: string },
+      { phoneNumber: string; method: 'whatsapp' | 'sms' }
+    >({
+      query: (data) => ({
+        url: '/auth/verify-phone/send',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    verifyPhoneCode: builder.mutation<
+      { success: boolean; message: string; data: { user: any } },
+      { phoneNumber: string; verificationCode: string }
+    >({
+      query: (data) => ({
+        url: '/auth/verify-phone/confirm',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    resendPhoneVerificationCode: builder.mutation<
+      { success: boolean; message: string },
+      { phoneNumber: string; method: 'whatsapp' | 'sms' }
+    >({
+      query: (data) => ({
+        url: '/auth/verify-phone/resend',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -205,4 +236,7 @@ export const {
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useCheckEmailExistsMutation,
+  useSendPhoneVerificationCodeMutation,
+  useVerifyPhoneCodeMutation,
+  useResendPhoneVerificationCodeMutation,
 } = authApi;

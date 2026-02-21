@@ -1,7 +1,7 @@
 import { Card } from 'react-bootstrap';
 
 interface UserProfile {
-  _id: string;
+  id: string;
   displayPicture?: string;
   backgroundPicture?: string;
   about?: string;
@@ -14,6 +14,7 @@ interface Props {
   userProfile: UserProfile;
 }
 const ProfileAbout = ({ userProfile }: Props) => {
+  console.log('ProfileAbout received userProfile:', userProfile);
   const formatDate = (dateString?: string): string => {
     if (!dateString) return 'Unknown';
     return new Date(dateString).toLocaleDateString('en-US', {

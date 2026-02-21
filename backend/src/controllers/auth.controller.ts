@@ -327,6 +327,7 @@ export const getCurrentUser = async (
         isEmailVerified: true,
         displayPicture: true,
         backgroundPicture: true,
+        isPhoneVerified: true,
         about: true,
         website: true,
         createdAt: true,
@@ -355,22 +356,7 @@ export const getCurrentUser = async (
     res.json({
       success: true,
       data: {
-        user: {
-          id: user.id,
-          fullName: user.fullName,
-          email: user.email,
-          phone: user.phone,
-          nationalId: user.nationalId,
-          globalRole: user.globalRole,
-          status: user.status,
-          isEmailVerified: user.isEmailVerified,
-          displayPicture: user.displayPicture,
-          backgroundPicture: user.backgroundPicture,
-          about: user.about,
-          website: user.website,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-        },
+        user,
         userPropertyRoles: user.userPropertyRoles,
       },
     });
@@ -581,10 +567,6 @@ export const sendPhoneVerificationCode = async (
       throw new AppError("User not found", 404);
     }
 
-    if (user.isPhoneVerified) {
-      throw new AppError("Phone number is already verified", 400);
-    }
-
     // Generate verification code
     const phoneVerificationCode = generateVerificationCode();
     const phoneVerificationCodeExpiresAt = new Date(
@@ -597,6 +579,7 @@ export const sendPhoneVerificationCode = async (
       data: {
         phoneVerificationCode,
         phoneVerificationCodeExpiresAt,
+        isPhoneVerified: false,
         phone: phoneNumber, // Update phone number if changed
       },
     });
