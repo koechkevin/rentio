@@ -74,7 +74,7 @@ const PropertyInvoiceDetail = () => {
           </Button>
           <Button variant="primary" onClick={handleDownloadPDF}>
             <Download size={16} className="me-2" />
-            Download PDF
+            Download
           </Button>
         </div>
       </div>

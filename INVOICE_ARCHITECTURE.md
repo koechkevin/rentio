@@ -314,18 +314,17 @@ billing period (month) to prevent double-billing
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                      FRONTEND                            │
+│                      FRONTEND                           │
 ├─────────────────────────────────────────────────────────┤
 │ React + TypeScript                                      │
-│ Material-UI (MUI)                                       │
+│ Noble-UI                                                │
 │ React Router                                            │
-│ jsPDF (PDF generation)                                  │
-│ @mui/x-date-pickers (Date picking)                      │
+│ jsPDF (PDF generation)                                  │                   │
 │ Axios (API calls)                                       │
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
-│                      BACKEND                             │
+│                      BACKEND                            │
 ├─────────────────────────────────────────────────────────┤
 │ Node.js + Express                                       │
 │ TypeScript                                              │

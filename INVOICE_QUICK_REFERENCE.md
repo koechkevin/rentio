@@ -37,7 +37,7 @@ npm install jspdf @mui/x-date-pickers
 ### 3. Download Invoice PDF
 
 1. Open invoice detail page
-2. Click "Download PDF" button
+2. Click "Download" button
 3. PDF generated and downloaded
 
 ## 🔌 API Endpoints

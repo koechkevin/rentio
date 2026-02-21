@@ -310,7 +310,7 @@ Show full invoice details with:
 - All invoice information
 - Items breakdown
 - Payment history (if integrated)
-- Download PDF button
+- Download button
 - Edit button (if not PAID/CANCELLED)
 - Mark as Paid button (for owners/caretakers)
 

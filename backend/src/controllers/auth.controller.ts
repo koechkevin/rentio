@@ -7,6 +7,8 @@ import { GlobalRole } from "@prisma/client";
 import {
   sendVerificationEmail,
   sendPasswordResetEmail,
+  sendWhatsAppMessage,
+  sendSMSMessageViaBrevo,
 } from "../services/email.service";
 import { AuthRequest } from "../middleware/auth";
 
@@ -543,6 +545,239 @@ export const checkEmailExists = async (
 
     res.json({
       exists: !!user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Send phone verification code via WhatsApp or SMS
+ */
+export const sendPhoneVerificationCode = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { phoneNumber, method } = req.body;
+
+    if (!phoneNumber || !method) {
+      throw new AppError(
+        "Phone number and method (whatsapp/sms) are required",
+        400,
+      );
+    }
+
+    if (!["whatsapp", "sms"].includes(method)) {
+      throw new AppError("Method must be either 'whatsapp' or 'sms'", 400);
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { id: req.user!.id },
+    });
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    if (user.isPhoneVerified) {
+      throw new AppError("Phone number is already verified", 400);
+    }
+
+    // Generate verification code
+    const phoneVerificationCode = generateVerificationCode();
+    const phoneVerificationCodeExpiresAt = new Date(
+      Date.now() + 10 * 60 * 1000,
+    ); // 10 minutes
+
+    // Update user with verification code
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        phoneVerificationCode,
+        phoneVerificationCodeExpiresAt,
+        phone: phoneNumber, // Update phone number if changed
+      },
+    });
+
+    // Send verification code via selected method
+    const message = `Your phone verification code is: ${phoneVerificationCode}. This code expires in 10 minutes.`;
+
+    try {
+      if (method === "whatsapp") {
+        await sendWhatsAppMessage(phoneNumber, message);
+      } else if (method === "sms") {
+        await sendSMSMessageViaBrevo(phoneNumber, message);
+      }
+    } catch (error) {
+      console.error(`Failed to send ${method} verification code:`, error);
+      throw new AppError(
+        `Failed to send ${method} verification code. Please try again.`,
+        500,
+      );
+    }
+
+    res.json({
+      success: true,
+      message: `Verification code sent via ${method.toUpperCase()}`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Verify phone number with code
+ */
+export const verifyPhone = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { phoneNumber, verificationCode } = req.body;
+
+    if (!phoneNumber || !verificationCode) {
+      throw new AppError(
+        "Phone number and verification code are required",
+        400,
+      );
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { id: req.user!.id, phone: phoneNumber },
+    });
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    if (user.isPhoneVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number is already verified",
+      });
+    }
+
+    if (
+      !user.phoneVerificationCode ||
+      user.phoneVerificationCode !== verificationCode
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid verification code",
+      });
+    }
+
+    if (
+      user.phoneVerificationCodeExpiresAt &&
+      user.phoneVerificationCodeExpiresAt < new Date()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Verification code has expired",
+      });
+    }
+
+    // Update user
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isPhoneVerified: true,
+        phoneVerificationCode: null,
+        phoneVerificationCodeExpiresAt: null,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        phone: true,
+        email: true,
+        globalRole: true,
+        isEmailVerified: true,
+        isPhoneVerified: true,
+      },
+    });
+
+    res.json({
+      success: true,
+      message: "Phone number verified successfully",
+      data: { user: updatedUser },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Resend phone verification code
+ */
+export const resendPhoneVerificationCode = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { phoneNumber, method } = req.body;
+
+    if (!phoneNumber || !method) {
+      throw new AppError(
+        "Phone number and method (whatsapp/sms) are required",
+        400,
+      );
+    }
+
+    if (!["whatsapp", "sms"].includes(method)) {
+      throw new AppError("Method must be either 'whatsapp' or 'sms'", 400);
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { id: req.user!.id, phone: phoneNumber },
+    });
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    if (user.isPhoneVerified) {
+      throw new AppError("Phone number is already verified", 400);
+    }
+
+    // Generate new verification code
+    const phoneVerificationCode = generateVerificationCode();
+    const phoneVerificationCodeExpiresAt = new Date(
+      Date.now() + 10 * 60 * 1000,
+    );
+
+    // Update user
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        phoneVerificationCode,
+        phoneVerificationCodeExpiresAt,
+      },
+    });
+
+    // Send verification code
+    const message = `Your phone verification code is: ${phoneVerificationCode}. This code expires in 10 minutes.`;
+
+    try {
+      if (method === "whatsapp") {
+        await sendWhatsAppMessage(phoneNumber, message);
+      } else if (method === "sms") {
+        await sendSMSMessageViaBrevo(phoneNumber, message);
+      }
+    } catch (error) {
+      console.error(`Failed to resend ${method} verification code:`, error);
+      throw new AppError(
+        `Failed to resend ${method} verification code. Please try again.`,
+        500,
+      );
+    }
+
+    res.json({
+      success: true,
+      message: `Verification code resent via ${method.toUpperCase()}`,
     });
   } catch (error) {
     next(error);

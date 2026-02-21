@@ -71,7 +71,7 @@ const InvoiceDetail = () => {
                 <div className="d-flex gap-2">
                   <Button variant="primary" onClick={handleDownloadPDF}>
                     <Download size={16} className="me-2" />
-                    Download PDF
+                    Download
                   </Button>
                   <Button variant="outline-secondary" onClick={() => navigate('/finance/invoices')}>
                     <ArrowLeft size={16} className="me-2" />

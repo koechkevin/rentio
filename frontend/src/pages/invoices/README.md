@@ -165,7 +165,7 @@ Add invoice links to your navigation menu:
 ### Downloading Invoice as PDF
 
 1. Navigate to an invoice detail page
-2. Click "Download PDF" button
+2. Click "Download" button
 3. PDF will be generated and downloaded automatically
 
 ## Customization

@@ -1,6 +1,11 @@
 import { Router } from "express";
 import * as authController from "../controllers/auth.controller";
 import { authenticate } from "../middleware/auth";
+import {
+  resendPhoneVerificationCode,
+  sendPhoneVerificationCode,
+  verifyPhone,
+} from "../controllers/auth.controller";
 
 const router = Router();
 
@@ -276,5 +281,8 @@ router.post("/reset-password", authController.resetPassword);
  *         description: Email is required
  */
 router.post("/check-email", authenticate, authController.checkEmailExists);
+router.post("/verify-phone/send", authenticate, sendPhoneVerificationCode);
+router.post("/verify-phone/confirm", authenticate, verifyPhone);
+router.post("/verify-phone/resend", authenticate, resendPhoneVerificationCode);
 
 export default router;

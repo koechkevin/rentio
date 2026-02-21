@@ -7,6 +7,7 @@ import {
   autoAllocateToNewInvoice,
   calculateArrears,
 } from "../../services/payment.service";
+import { sendInvoiceNotifications } from "../../services/invoice-notification.service";
 
 // Helper function to generate invoice number
 const generateInvoiceNumber = async (): Promise<string> => {
@@ -170,7 +171,20 @@ export const createInvoice = async (
         },
       },
     });
-
+    const originUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    await sendInvoiceNotifications(
+      {
+        email: invoice.customer.email || undefined,
+        phone: invoice.customer.phone,
+      },
+      {
+        id: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        totalAmount: invoice.totalAmount.toString(),
+        dueDate: invoice.dueDate.toISOString().split("T")[0],
+      },
+      originUrl,
+    );
     res.status(201).json({
       message: "Invoice created successfully",
       data: updatedInvoice,

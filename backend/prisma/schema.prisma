@@ -157,6 +157,9 @@ model User {
   verificationCode  String?
   isEmailVerified   Boolean             @default(false)
   verificationCodeExpiresAt DateTime?
+  phoneVerificationCode String?         @map("phone_verification_code")
+  isPhoneVerified   Boolean             @default(false) @map("is_phone_verified")
+  phoneVerificationCodeExpiresAt DateTime? @map("phone_verification_code_expires_at")
 
   ownedProperties    Property[]           @relation("PropertyOwner")
   userPropertyRoles  UserPropertyRole[]   @relation("UserPropertyRoles")
