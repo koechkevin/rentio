@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, Check, Zap, BarChart3, Lock, Users, FileText, CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router';
@@ -8,8 +8,23 @@ import './LandingPage.scss';
 export default function LandingPage() {
   const navigate = useNavigate();
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { scrollY } = useScroll();
   const ref = useRef(null);
+
+  useEffect(() => {
+    // Check if user is logged in (adjust based on your auth implementation)
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
+
+  const handleLoginClick = () => {
+    if (isLoggedIn) {
+      navigate('/dashboard');
+    } else {
+      navigate('/auth/login');
+    }
+  };
 
   // Parallax effects
   const y = useTransform(scrollY, [0, 300], [0, -50]);
@@ -116,8 +131,8 @@ export default function LandingPage() {
                   </Nav.Link>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button variant="outline-info" onClick={() => navigate('/auth/login')} className="fw-semibold">
-                    Login
+                  <Button variant="outline-info" onClick={handleLoginClick} className="fw-semibold">
+                    {isLoggedIn ? 'Dashboard' : 'Login'}
                   </Button>
                 </motion.div>
               </Nav>

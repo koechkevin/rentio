@@ -37,7 +37,7 @@ const LoginPage = () => {
         localStorage.removeItem('remember');
       }
 
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       const errorMessage = err?.data?.message || err?.message || 'Login failed. Please try again.';
       setError(errorMessage);
