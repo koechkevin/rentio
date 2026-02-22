@@ -7,6 +7,7 @@ import RecentIssuesTable from './components/RecentIssuesTable';
 import { useGetPropertiesQuery } from '../../services/api/propertyApi';
 import OnboardingBanner from '../../components/OnboardingBanner';
 import TenantDashboardBanner from '../../components/TenantDashboardBanner';
+import TermsAcceptanceBanner from '../../components/TermsAcceptanceBanner';
 import PropertySelector from '../../components/PropertySelector';
 import { useAppSelector } from '../../store/store';
 import PropertyStats from './components/PropertyStats';
@@ -19,6 +20,7 @@ const DashboardPage = () => {
 
   return (
     <>
+      <TermsAcceptanceBanner />
       {hasNoProperties && (
         <>
           <OnboardingBanner />

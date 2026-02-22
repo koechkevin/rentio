@@ -14,6 +14,7 @@ const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [nationalId, setNationalId] = useState('');
   const [remember, setRemember] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -40,6 +41,7 @@ const RegisterPage = () => {
         email,
         password,
         nationalId,
+        termsAccepted: true,
       }).unwrap();
 
       setSuccess('Registration successful! Please check your email to verify your account.');
@@ -154,8 +156,25 @@ const RegisterPage = () => {
                 disabled={isLoading}
               />
             </div>
+            <div className="mb-3">
+              <Form.Check
+                type="checkbox"
+                id="termsCheck"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                disabled={isLoading}
+                label={
+                  <>
+                    I have read and agree to the{' '}
+                    <Link to="/terms" target="_blank">Terms & Conditions</Link>
+                    {' '}and{' '}
+                    <Link to="/tenant-terms" target="_blank">Tenant Terms</Link>
+                  </>
+                }
+              />
+            </div>
             <div>
-              <Button type="submit" variant="primary" className="me-2 mb-2 mb-md-0 w-100" disabled={isLoading}>
+              <Button type="submit" variant="primary" className="me-2 mb-2 mb-md-0 w-100" disabled={isLoading || !termsAccepted}>
                 {isLoading ? (
                   <>
                     <Spinner size="sm" animation="border" /> Signing up...

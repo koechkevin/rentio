@@ -12,6 +12,7 @@ export interface User {
   phone?: string;
   globalRole: string;
   userPropertyRoles?: PropertyRole[];
+  termsAcceptedAt?: string | null;
 }
 
 export interface AuthState {

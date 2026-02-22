@@ -5,6 +5,7 @@ import {
   resendPhoneVerificationCode,
   sendPhoneVerificationCode,
   verifyPhone,
+  acceptTerms,
 } from "../controllers/auth.controller";
 
 const router = Router();
@@ -284,5 +285,6 @@ router.post("/check-email", authenticate, authController.checkEmailExists);
 router.post("/verify-phone/send", authenticate, sendPhoneVerificationCode);
 router.post("/verify-phone/confirm", authenticate, verifyPhone);
 router.post("/verify-phone/resend", authenticate, resendPhoneVerificationCode);
+router.post("/accept-terms", authenticate, acceptTerms);
 
 export default router;

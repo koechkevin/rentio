@@ -21,7 +21,11 @@ export const register = async (
   next: NextFunction,
 ) => {
   try {
-    const { fullName, phone, email, password, nationalId } = req.body;
+    const { fullName, phone, email, password, nationalId, termsAccepted } = req.body;
+
+    if (termsAccepted !== true) {
+      throw new AppError("You must accept the Terms & Conditions", 400);
+    }
 
     const existingUser = await prisma.user.findFirst({
       where: { OR: [{ phone }, { email: email || undefined }] },
@@ -46,6 +50,8 @@ export const register = async (
         verificationCode,
         verificationCodeExpiresAt,
         isEmailVerified: false,
+        termsAcceptedAt: new Date(),
+        termsVersion: "2026-02",
       },
       select: {
         id: true,
@@ -328,6 +334,7 @@ export const getCurrentUser = async (
         displayPicture: true,
         backgroundPicture: true,
         isPhoneVerified: true,
+        termsAcceptedAt: true,
         about: true,
         website: true,
         createdAt: true,
@@ -687,6 +694,25 @@ export const verifyPhone = async (
       message: "Phone number verified successfully",
       data: { user: updatedUser },
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Accept Terms & Conditions for authenticated user
+ */
+export const acceptTerms = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    await prisma.user.update({
+      where: { id: req.user!.id },
+      data: { termsAcceptedAt: new Date(), termsVersion: "2026-02" },
+    });
+    res.json({ success: true, message: "Terms accepted" });
   } catch (error) {
     next(error);
   }

@@ -31,6 +31,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   nationalId: string;
+  termsAccepted: boolean;
 }
 
 export interface RegisterResponse {
@@ -88,6 +89,7 @@ export interface CurrentUserResponse {
       createdAt: string;
       updatedAt: string;
       isPhoneVerified: boolean;
+      termsAcceptedAt?: string | null;
     };
     userPropertyRoles: Array<{
       propertyId: string;
@@ -222,6 +224,13 @@ export const authApi = createApi({
         body: data,
       }),
     }),
+    acceptTerms: builder.mutation<{ success: boolean; message: string }, void>({
+      query: () => ({
+        url: '/auth/accept-terms',
+        method: 'POST',
+      }),
+      invalidatesTags: ['CurrentUser'],
+    }),
   }),
 });
 
@@ -239,4 +248,5 @@ export const {
   useSendPhoneVerificationCodeMutation,
   useVerifyPhoneCodeMutation,
   useResendPhoneVerificationCodeMutation,
+  useAcceptTermsMutation,
 } = authApi;
