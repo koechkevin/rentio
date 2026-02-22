@@ -163,7 +163,7 @@ export default function LandingPage() {
 
               <motion.div
                 variants={itemVariants}
-                className="d-flex flex-column flex-sm-row gap-3 justify-content-center"
+                className="d-flex flex-column flex-sm-row gap-3 justify-content-center align-items-center"
               >
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button
