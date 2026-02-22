@@ -1,0 +1,14 @@
+# Agent OS Standards Index
+
+api:
+  error-handling: AppError class, next(error) pattern, centralized error handler middleware
+  rbac: Two-tier RBAC with global roles (ADMIN/USER) and property roles via X-Property-Id header
+  response-format: API response envelope structure with success, message, data, and pagination
+  swagger-docs: Required Swagger JSDoc blocks on all route endpoints, served at /docs
+
+database:
+  prisma-patterns: Prisma enums for statuses/roles, soft deletes with deletedAt, selective field fetching
+
+frontend:
+  state-management: Redux + localStorage auth sync, baseQueryWithReauth token refresh, property context hook
+  ui-stack: React Bootstrap as primary UI, Lucide for icons, status-to-variant mapping pattern
