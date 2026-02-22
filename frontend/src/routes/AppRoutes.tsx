@@ -40,6 +40,8 @@ const InvoicePage = lazy(() => import('@/pages/general/InvoicePage'));
 const ProfilePage = lazy(() => import('@/pages/general/profile/ProfilePage'));
 const PricingPage = lazy(() => import('@/pages/general/PricingPage'));
 const LandingPage = lazy(() => import('@/pages/general/LandingPage'));
+const PropertyTermsPage = lazy(() => import('@/pages/legal/PropertyTermsPage'));
+const TenantTermsPage = lazy(() => import('@/pages/legal/TenantTermsPage'));
 
 // Invoice Management
 const InvoiceList = lazy(() => import('@/pages/invoices/InvoiceList'));
@@ -67,6 +69,8 @@ const AppRoutes = () => {
     <BrowserRouter basename={baseUrl}>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/terms" element={<PropertyTermsPage />} />
+        <Route path="/tenant-terms" element={<TenantTermsPage />} />
         <Route element={<AuthGuard />}>
           <Route element={<MainLayout />}>
             <Route element={<Navigate to="/dashboard" />} />
