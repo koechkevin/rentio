@@ -172,6 +172,13 @@ export const invoiceApi = createApi({
       },
       providesTags: ['Invoice'],
     }),
+    cancelInvoice: builder.mutation<{ message: string; data: any }, string>({
+      query: (invoiceId) => ({
+        url: `/invoices/${invoiceId}/cancel`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['Invoice'],
+    }),
   }),
 });
 
@@ -186,4 +193,5 @@ export const {
   useGetSuggestedItemsQuery,
   useLazyGetSuggestedItemsQuery,
   useGetMyInvoicesQuery,
+  useCancelInvoiceMutation,
 } = invoiceApi;

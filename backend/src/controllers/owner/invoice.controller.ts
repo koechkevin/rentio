@@ -8,6 +8,10 @@ import {
   calculateArrears,
 } from "../../services/payment.service";
 import { sendInvoiceNotifications } from "../../services/invoice-notification.service";
+import {
+  cancelInvoice,
+  restoreInvoice,
+} from "../../services/invoice-cancellation.service";
 
 // Helper function to generate invoice number
 const generateInvoiceNumber = async (): Promise<string> => {
@@ -743,6 +747,77 @@ export const getCustomerArrears = async (
         customerId,
         arrears: arrears.toString(),
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Cancel an invoice (owner/caretaker only)
+ */
+export const cancelInvoiceHandler = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+
+    // Verify invoice belongs to property
+    const invoice = await prisma.invoice.findFirst({
+      where: {
+        id,
+        propertyId: req.propertyId!,
+        deletedAt: null,
+      },
+    });
+
+    if (!invoice) {
+      throw new AppError("Invoice not found", 404);
+    }
+
+    // Cancel invoice
+    const cancelledInvoice = await cancelInvoice(id);
+
+    res.status(200).json({
+      message: "Invoice cancelled successfully",
+      data: cancelledInvoice,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Restore a cancelled invoice (owner/caretaker only)
+ */
+export const restoreInvoiceHandler = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+
+    // Verify invoice belongs to property
+    const invoice = await prisma.invoice.findFirst({
+      where: {
+        id,
+        propertyId: req.propertyId!,
+      },
+    });
+
+    if (!invoice) {
+      throw new AppError("Invoice not found", 404);
+    }
+
+    // Restore invoice
+    const restoredInvoice = await restoreInvoice(id);
+
+    res.status(200).json({
+      message: "Invoice restored successfully",
+      data: restoredInvoice,
     });
   } catch (error) {
     next(error);

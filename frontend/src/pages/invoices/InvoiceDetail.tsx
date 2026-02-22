@@ -1,9 +1,11 @@
 import { Row, Col, Card, Table, Button, Badge, Alert, Spinner } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft, Download, X } from 'lucide-react';
+import Swal from 'sweetalert2';
 import { InvoiceStatus } from '../../types/invoice.types';
-import { useGetInvoiceQuery } from '../../services/api/invoiceApi';
+import { useGetInvoiceQuery, useCancelInvoiceMutation } from '../../services/api/invoiceApi';
 import { generateInvoicePDF } from '../../utils/invoicePdf';
+import { useAppSelector } from '@/store/store';
 
 const InvoiceDetail = () => {
   console.log('Rendering InvoiceDetail component');
@@ -11,6 +13,13 @@ const InvoiceDetail = () => {
   const { id } = useParams<{ id: string }>();
 
   const { data, isLoading, error } = useGetInvoiceQuery(id!, { skip: !id });
+  const [cancelInvoice, { isLoading: isCancelling }] = useCancelInvoiceMutation();
+  const userPropertyRoles = useAppSelector((state) => state.auth.user?.userPropertyRoles || []);
+  const currentPropertyId = useAppSelector((state) => state.property.currentPropertyId);
+  const currentRoles = userPropertyRoles
+    .filter((role) => role.propertyId === currentPropertyId)
+    .map((role) => role.role);
+
   const invoice = data?.data || null;
 
   const getStatusVariant = (status: InvoiceStatus) => {
@@ -27,6 +36,47 @@ const InvoiceDetail = () => {
   const handleDownloadPDF = () => {
     if (!invoice) return;
     generateInvoicePDF(invoice);
+  };
+
+  const handleCancelInvoice = async () => {
+    if (!invoice) return;
+
+    const result = await Swal.fire({
+      title: 'Cancel Invoice?',
+      html: `<p>Are you sure you want to cancel invoice <strong>${invoice.invoiceNumber}</strong>?</p>
+             <p class="text-muted small">This action will:</p>
+             <ul class="text-start text-muted small">
+               <li>Mark the invoice as cancelled</li>
+               <li>Reverse any payment allocations</li>
+               <li>Restore unallocated amounts to payments</li>
+             </ul>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Cancel Invoice',
+      cancelButtonText: 'Keep Invoice',
+    });
+    if (!result.isConfirmed) return;
+
+    try {
+      await cancelInvoice(id!).unwrap();
+      Swal.fire({
+        title: 'Cancelled!',
+        text: 'Invoice has been cancelled successfully.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+      }).then(() => {
+        navigate('/finance/invoices');
+      });
+    } catch (err: any) {
+      Swal.fire({
+        title: 'Error',
+        text: err.data?.message || 'Failed to cancel invoice',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+    }
   };
 
   if (isLoading) {
@@ -57,6 +107,11 @@ const InvoiceDetail = () => {
     );
   }
 
+  // Can only cancel if not already cancelled - allow cancelling paid invoices to handle payment reversals. Also allow if current roles include owner or caretaker
+  const canCancel =
+    invoice.status !== InvoiceStatus.CANCELLED &&
+    (currentRoles.includes('OWNER') || currentRoles.includes('CARETAKER'));
+
   return (
     <>
       <Row>
@@ -69,10 +124,25 @@ const InvoiceDetail = () => {
                   <p className="text-muted mb-0">Invoice Number: {invoice.invoiceNumber}</p>
                 </div>
                 <div className="d-flex gap-2">
-                  <Button variant="primary" onClick={handleDownloadPDF}>
+                  <Button variant="primary" onClick={handleDownloadPDF} disabled={isCancelling}>
                     <Download size={16} className="me-2" />
                     Download
                   </Button>
+                  {canCancel && (
+                    <Button variant="danger" onClick={handleCancelInvoice} disabled={isCancelling}>
+                      {isCancelling ? (
+                        <>
+                          <Spinner size="sm" className="me-2" />
+                          Cancelling...
+                        </>
+                      ) : (
+                        <>
+                          <X size={16} className="me-2" />
+                          Cancel Invoice
+                        </>
+                      )}
+                    </Button>
+                  )}
                   <Button variant="outline-secondary" onClick={() => navigate('/finance/invoices')}>
                     <ArrowLeft size={16} className="me-2" />
                     Back

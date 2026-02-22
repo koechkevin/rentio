@@ -44,6 +44,20 @@ router.put(
   invoiceController.updateInvoice,
 );
 
+router.patch(
+  "/:id/restore",
+  extractPropertyId,
+  authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
+  invoiceController.restoreInvoiceHandler,
+);
+
+router.patch(
+  "/:id/cancel",
+  extractPropertyId,
+  authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
+  invoiceController.cancelInvoiceHandler,
+);
+
 router.delete(
   "/:id",
   extractPropertyId,
