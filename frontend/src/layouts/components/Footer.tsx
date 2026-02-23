@@ -6,7 +6,7 @@ const Footer = () => {
       <p className="text-secondary">
         Copyright © {new Date().getFullYear()}{' '}
         <a href="https://kevinkoech.com" target="_blank" rel="noopener noreferrer">
-          RentIO
+          RentalHub
         </a>
         .
       </p>

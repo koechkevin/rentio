@@ -69,8 +69,8 @@ const TenantTermsPage = () => {
                   <p className="mb-1 text-secondary">Rentio Technologies Ltd</p>
                   <p className="mb-1 text-secondary">Nairobi, Kenya</p>
                   <p className="mb-0">
-                    <a href="mailto:privacy@rentio.co.ke" className="text-primary">
-                      privacy@rentio.co.ke
+                    <a href="mailto:privacy@rentalhub.cloud" className="text-primary">
+                      privacy@rentalhub.cloud
                     </a>
                   </p>
                 </Card.Body>
@@ -374,8 +374,8 @@ const TenantTermsPage = () => {
                       <p className="fw-semibold mb-1">How to exercise your rights</p>
                       <p className="text-secondary mb-1">
                         Submit a data subject request to{' '}
-                        <a href="mailto:privacy@rentio.co.ke" className="text-primary">
-                          privacy@rentio.co.ke
+                        <a href="mailto:privacy@rentalhub.cloud" className="text-primary">
+                          privacy@rentalhub.cloud
                         </a>{' '}
                         or through the Privacy settings in your account. We will verify your identity before processing
                         the request.
@@ -599,8 +599,8 @@ const TenantTermsPage = () => {
               <Card.Body className="text-secondary small">
                 <p className="mb-1">
                   <strong>Questions about your data?</strong> Contact our Data Protection Officer at{' '}
-                  <a href="mailto:privacy@rentio.co.ke" className="text-primary">
-                    privacy@rentio.co.ke
+                  <a href="mailto:privacy@rentalhub.cloud" className="text-primary">
+                    privacy@rentalhub.cloud
                   </a>
                   . We aim to respond to all data subject requests within 21 days.
                 </p>
@@ -620,7 +620,7 @@ const TenantTermsPage = () => {
       <footer className="border-top py-4 mt-4">
         <Container fluid="xxl">
           <Row className="align-items-center">
-            <Col className="text-secondary small">© {new Date().getFullYear()} Rentio. All rights reserved.</Col>
+            <Col className="text-secondary small">© {new Date().getFullYear()} RentalHub. All rights reserved.</Col>
             <Col xs="auto" className="d-flex gap-3">
               <Link to="/tenant-terms" className="text-secondary small text-decoration-none">
                 Tenant Terms

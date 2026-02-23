@@ -23,7 +23,7 @@ const InvoicePage = () => {
                       Rent<span>IO</span>
                     </Link>
                     <p className="mt-3 mb-1">
-                      <b>RentIO Solutions Inc.</b>
+                      <b>RentalHub Solutions Inc.</b>
                     </p>
                     <p>
                       350 California Street,

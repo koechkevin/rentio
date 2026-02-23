@@ -49,7 +49,7 @@ export const Sidebar = () => {
   return (
     <nav className="sidebar">
       <div className="sidebar-brand">
-        <a href="/">RentIO</a>
+        <a href="/">RentalHub</a>
       </div>
       <div className="sidebar-menu">
         {menu.map((item, idx) => (

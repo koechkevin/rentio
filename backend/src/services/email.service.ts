@@ -42,17 +42,17 @@ export const sendVerificationEmail = async (
   to: string,
   verificationCode: string,
 ) => {
-  const from = process.env.EMAIL_FROM || "kevin@kevinkoech.com";
+  const from = process.env.EMAIL_FROM || "noreply@rentalhub.cloud";
 
   try {
     const info = await transporter.sendMail({
       from,
       to,
-      subject: "Verify Your Email - Property SAAS",
+      subject: "Verify Your Email - RentalHub",
       name: "Email Verification",
       html: `
         <h2>Email Verification</h2>
-        <p>Thank you for registering with Property SAAS.</p>
+        <p>Thank you for registering with RentalHub.</p>
         <p>Your verification code is: <strong>${verificationCode}</strong></p>
         <p>Please use this code to verify your account.</p>
       `,
@@ -79,18 +79,18 @@ export const sendPasswordResetEmail = async (
   resetToken: string,
   frontendUrl: string,
 ) => {
-  const from = process.env.EMAIL_FROM || "kevin@kevinkoech.com";
+  const from = process.env.EMAIL_FROM || "noreply@rentalhub.cloud";
   const resetUrl = `${frontendUrl}/auth/reset-password?token=${resetToken}&code=${verificationCode}`;
 
   try {
     const info = await transporter.sendMail({
       from,
       to: email,
-      subject: "Reset Your Password - Property SAAS",
+      subject: "Reset Your Password - RentalHub",
       name: "Password Reset",
       html: `
         <h2>Password Reset Request</h2>
-        <p>You requested to reset your password for Property SAAS.</p>
+        <p>You requested to reset your password for RentalHub.</p>
         <p>Your verification code is: <strong>${verificationCode}</strong></p>
         <p>Click the link below to reset your password:</p>
         <p><a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a></p>

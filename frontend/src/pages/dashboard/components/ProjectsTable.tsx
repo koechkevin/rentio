@@ -17,7 +17,7 @@ const ProjectsTable = () => {
       <tbody>
         <tr>
           <td>1</td>
-          <td>RentIO HTML</td>
+          <td>RentalHub HTML</td>
           <td>01/03/2025</td>
           <td>26/08/2025</td>
           <td>
@@ -27,7 +27,7 @@ const ProjectsTable = () => {
         </tr>
         <tr>
           <td>2</td>
-          <td>RentIO Angular</td>
+          <td>RentalHub Angular</td>
           <td>01/01/2025</td>
           <td>26/04/2025</td>
           <td>
@@ -37,7 +37,7 @@ const ProjectsTable = () => {
         </tr>
         <tr>
           <td>3</td>
-          <td>RentIO React</td>
+          <td>RentalHub React</td>
           <td>01/05/2025</td>
           <td>10/09/2025</td>
           <td>
@@ -49,7 +49,7 @@ const ProjectsTable = () => {
         </tr>
         <tr>
           <td>4</td>
-          <td>RentIO Vue</td>
+          <td>RentalHub Vue</td>
           <td>01/09/2025</td>
           <td>31/11/2025</td>
           <td>
@@ -61,7 +61,7 @@ const ProjectsTable = () => {
         </tr>
         <tr>
           <td>5</td>
-          <td>RentIO Laravel</td>
+          <td>RentalHub Laravel</td>
           <td>01/04/2025</td>
           <td>31/12/2025</td>
           <td>
@@ -73,7 +73,7 @@ const ProjectsTable = () => {
         </tr>
         <tr>
           <td>6</td>
-          <td>RentIO NodeJs</td>
+          <td>RentalHub NodeJs</td>
           <td>01/01/2025</td>
           <td>31/07/2025</td>
           <td>
@@ -83,7 +83,7 @@ const ProjectsTable = () => {
         </tr>
         <tr>
           <td>6</td>
-          <td>RentIO Svelte</td>
+          <td>RentalHub Svelte</td>
           <td>01/08/2025</td>
           <td>31/12/2025</td>
           <td>
@@ -95,7 +95,7 @@ const ProjectsTable = () => {
         </tr>
         <tr>
           <td>7</td>
-          <td>RentIO NextJs</td>
+          <td>RentalHub NextJs</td>
           <td>01/05/2025</td>
           <td>10/11/2025</td>
           <td>

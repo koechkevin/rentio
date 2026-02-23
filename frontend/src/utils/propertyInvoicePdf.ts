@@ -164,7 +164,7 @@ export const generatePropertyInvoicePDF = (invoice: PropertyInvoice): void => {
       }
       
       <div style="margin-top: 40px; text-align: center; color: #666; font-size: 10px;">
-        <p>Thank you for using Rentio Property Management System</p>
+        <p>Thank you for using RentalHub Property Management System</p>
         <p>This is a computer generated invoice</p>
       </div>
     </div>

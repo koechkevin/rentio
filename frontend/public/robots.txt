@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api
 
-Sitemap: https://rentio.com/sitemap.xml
+Sitemap: https://rentalhub.io/sitemap.xml

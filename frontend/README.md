@@ -1,4 +1,4 @@
-# RentIO - React + TypeScript + Vite
+# RentalHub - React + TypeScript + Vite
 
 ## Prerequisites
 
