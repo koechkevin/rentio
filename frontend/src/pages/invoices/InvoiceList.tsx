@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Row, Col, Card, Table, Badge, Button, Spinner, Alert, Form, InputGroup } from 'react-bootstrap';
+import { Row, Col, Card, Table, Badge, Button, Spinner, Alert, Form, InputGroup, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Trash2, Download, Plus, Search } from 'lucide-react';
+import { Eye, Trash2, Plus, Search, FileStack } from 'lucide-react';
+import Swal from 'sweetalert2';
 import { InvoiceStatus, type Invoice } from '../../types/invoice.types';
-import { useGetInvoicesQuery, useDeleteInvoiceMutation } from '../../services/api/invoiceApi';
+import {
+  useGetInvoicesQuery,
+  useDeleteInvoiceMutation,
+  useBulkCreateInvoicesFromBillingItemsMutation,
+  type BulkInvoiceResult,
+} from '../../services/api/invoiceApi';
 import { useAppSelector } from '@/store/store';
 
 const InvoiceList = () => {
@@ -13,6 +19,11 @@ const InvoiceList = () => {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Bulk invoice modal state
+  const [showBulkConfirmModal, setShowBulkConfirmModal] = useState(false);
+  const [bulkInvoiceResult, setBulkInvoiceResult] = useState<BulkInvoiceResult | null>(null);
+  const [showBulkResultModal, setShowBulkResultModal] = useState(false);
 
   const {
     data,
@@ -27,6 +38,7 @@ const InvoiceList = () => {
   });
 
   const [deleteInvoice] = useDeleteInvoiceMutation();
+  const [bulkCreateInvoices, { isLoading: isBulkInvoiceLoading }] = useBulkCreateInvoicesFromBillingItemsMutation();
 
   const invoices = data?.data || [];
   const totalPages = data?.pagination?.totalPages || 1;
@@ -34,10 +46,9 @@ const InvoiceList = () => {
   useEffect(() => {
     if (currentPropertyId) {
       refetch();
-      setCurrentPage(1); // Reset to first page when property changes
+      setCurrentPage(1);
     }
   }, [currentPropertyId, refetch]);
-  console.log(currentPropertyId);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this invoice?')) return;
@@ -51,6 +62,24 @@ const InvoiceList = () => {
 
   const handleView = (id: string) => {
     navigate(`/finance/invoices/${id}`);
+  };
+
+  const handleBulkCreateInvoices = async () => {
+    setShowBulkConfirmModal(false);
+    try {
+      const res = await bulkCreateInvoices().unwrap();
+      setBulkInvoiceResult(res);
+      setShowBulkResultModal(true);
+    } catch (err: any) {
+      Swal.fire({
+        title: err.data?.message || 'Error creating invoices',
+        icon: 'error',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3500,
+      });
+    }
   };
 
   const getStatusVariant = (status: InvoiceStatus): string => {
@@ -117,10 +146,16 @@ const InvoiceList = () => {
             <Card.Body>
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <Card.Title as="h4">Invoices</Card.Title>
-                <Button variant="primary" onClick={() => navigate('/finance/invoices/create')}>
-                  <Plus size={16} className="me-2" />
-                  Create Invoice
-                </Button>
+                <div className="d-flex gap-2">
+                  <Button variant="outline-success" onClick={() => setShowBulkConfirmModal(true)}>
+                    <FileStack size={16} className="me-2" />
+                    Bulk Create Invoices
+                  </Button>
+                  <Button variant="primary" onClick={() => navigate('/finance/invoices/create')}>
+                    <Plus size={16} className="me-2" />
+                    Create Invoice
+                  </Button>
+                </div>
               </div>
 
               <Row className="mb-3">
@@ -225,6 +260,116 @@ const InvoiceList = () => {
           </Card>
         </Col>
       </Row>
+
+      {/* Bulk Create Invoices Confirmation Modal */}
+      <Modal show={showBulkConfirmModal} onHide={() => setShowBulkConfirmModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Bulk Create Invoices</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            This will create invoices for all <strong>PENDING</strong> billing items in this property,
+            grouped by customer. Each customer will receive one invoice containing all their pending
+            billing items as line items.
+          </p>
+          <p className="text-muted small mb-0">
+            Customers with no pending billing items will be skipped.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowBulkConfirmModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="success" onClick={handleBulkCreateInvoices} disabled={isBulkInvoiceLoading}>
+            {isBulkInvoiceLoading ? (
+              <><Spinner animation="border" size="sm" className="me-2" />Creating...</>
+            ) : (
+              <><FileStack size={16} className="me-2" />Create Invoices</>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Bulk Create Invoices Result Modal */}
+      <Modal
+        show={showBulkResultModal}
+        onHide={() => { setShowBulkResultModal(false); setBulkInvoiceResult(null); }}
+        size="lg"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Bulk Invoice Creation Results</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {bulkInvoiceResult && (
+            <>
+              <div className="d-flex gap-3 mb-4">
+                <div className="p-3 bg-success bg-opacity-10 rounded text-center flex-fill">
+                  <div className="fs-3 fw-bold text-success">{bulkInvoiceResult.data.created.length}</div>
+                  <div className="text-muted small">Invoices Created</div>
+                </div>
+                <div className="p-3 bg-warning bg-opacity-10 rounded text-center flex-fill">
+                  <div className="fs-3 fw-bold text-warning">{bulkInvoiceResult.data.skipped.length}</div>
+                  <div className="text-muted small">Skipped</div>
+                </div>
+              </div>
+
+              {bulkInvoiceResult.data.created.length > 0 && (
+                <>
+                  <h6 className="text-success mb-2">Created Invoices</h6>
+                  <Table size="sm" bordered className="mb-4">
+                    <thead className="table-success">
+                      <tr>
+                        <th>Invoice #</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Total Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bulkInvoiceResult.data.created.map((row, idx) => (
+                        <tr key={idx}>
+                          <td>{row.invoiceNumber}</td>
+                          <td>{row.customerName}</td>
+                          <td>{row.itemCount}</td>
+                          <td>{formatCurrency(row.totalAmount)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </>
+              )}
+
+              {bulkInvoiceResult.data.skipped.length > 0 && (
+                <>
+                  <h6 className="text-warning mb-2">Skipped</h6>
+                  <Table size="sm" bordered>
+                    <thead className="table-warning">
+                      <tr>
+                        <th>Customer</th>
+                        <th>Reason</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bulkInvoiceResult.data.skipped.map((row, idx) => (
+                        <tr key={idx}>
+                          <td>{row.customerName}</td>
+                          <td>{row.reason}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </>
+              )}
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => { setShowBulkResultModal(false); setBulkInvoiceResult(null); }}>
+            Done
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };

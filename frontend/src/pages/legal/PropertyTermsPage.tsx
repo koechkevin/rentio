@@ -26,7 +26,7 @@ const PropertyTermsPage = () => {
       <Navbar style={{ left: 0, width: '100%' }} bg="body" border-bottom="true" className="border-bottom px-3 py-2">
         <Container fluid="xxl">
           <Navbar.Brand as={Link} to="/" className="fw-bold fs-5">
-            Rentio
+            RentalHub
           </Navbar.Brand>
           <Nav className="ms-auto">
             <Nav.Link as={Link} to="/" className="d-flex align-items-center gap-1 text-secondary">
@@ -79,13 +79,13 @@ const PropertyTermsPage = () => {
             <section id="acceptance" className="mb-5">
               <h3 className="fw-semibold mb-3">1. Acceptance of Terms</h3>
               <p>
-                By registering an account and listing a property on Rentio, you ("Property Owner", "Landlord", or
+                By registering an account and listing a property on RentalHub, you ("Property Owner", "Landlord", or
                 "Manager") agree to be bound by these Terms and Conditions. If you do not agree, you must not use the
                 platform.
               </p>
               <p>
-                These terms govern the relationship between Rentio and Property Owners. Separate terms apply to Tenants.
-                Where both sets of terms conflict, Rentio's determination shall be final.
+                These terms govern the relationship between RentalHub and Property Owners. Separate terms apply to
+                Tenants. Where both sets of terms conflict, RentalHub's determination shall be final.
               </p>
             </section>
 
@@ -96,7 +96,7 @@ const PropertyTermsPage = () => {
                 {[
                   'You must provide accurate property information at all times.',
                   'You are responsible for verifying tenant identities before granting tenancy.',
-                  'You may not use Rentio to list properties for which you do not hold legal authority (ownership, management mandate, or lease assignment rights).',
+                  'You may not use RentalHub to list properties for which you do not hold legal authority (ownership, management mandate, or lease assignment rights).',
                   'Multiple properties may be managed under a single account. Each property constitutes a separate tenancy context.',
                   'You must not use the platform to facilitate fraudulent, illegal, or discriminatory rental practices.',
                 ].map((item, i) => (
@@ -112,16 +112,16 @@ const PropertyTermsPage = () => {
             <section id="payment-obligations" className="mb-5">
               <h3 className="fw-semibold mb-3">3. Payment Obligations</h3>
               <p>
-                Rentio facilitates rent collection on behalf of Property Owners. By enabling invoice generation and
+                RentalHub facilitates rent collection on behalf of Property Owners. By enabling invoice generation and
                 payment collection you agree that:
               </p>
               <ul className="list-unstyled d-flex flex-column gap-2">
                 {[
                   'Rent amounts, due dates, and payment methods must be accurately reflected in the lease agreement recorded on the platform.',
-                  'Rentio will remit collected payments to your registered bank account or M-Pesa wallet within 2 working days of receipt, less applicable platform fees.',
+                  'RentalHub will remit collected payments to your registered bank account or M-Pesa wallet within 2 working days of receipt, less applicable platform fees.',
                   'You are solely responsible for informing tenants of payment obligations in advance of the due date.',
                   'Platform fees are non-refundable once a payment has been processed.',
-                  'Disputed transactions must be raised with Rentio within 7 days of the transaction date.',
+                  'Disputed transactions must be raised with RentalHub within 7 days of the transaction date.',
                 ].map((item, i) => (
                   <li key={i} className="d-flex gap-2">
                     <span className="text-primary mt-1">•</span>
@@ -161,8 +161,8 @@ const PropertyTermsPage = () => {
                         </Badge>
                       </h5>
                       <p className="text-secondary mb-1">
-                        Rentio automatically sends payment reminder notifications to the tenant via SMS, WhatsApp, and
-                        in-app notification on the due date and again on days 3 and 7 of non-payment.
+                        RentalHub automatically sends payment reminder notifications to the tenant via SMS, WhatsApp,
+                        and in-app notification on the due date and again on days 3 and 7 of non-payment.
                       </p>
                       <p className="text-secondary small mb-0">No penalty fees apply during this period.</p>
                     </div>
@@ -300,7 +300,7 @@ const PropertyTermsPage = () => {
                         </table>
                       </div>
                       <p className="text-secondary small mb-0">
-                        All notices must be recorded and served through the Rentio platform to maintain an auditable
+                        All notices must be recorded and served through the RentalHub platform to maintain an auditable
                         trail. Self-help evictions (forceful removal of tenant or belongings without a court order) are
                         strictly prohibited and constitute an offence.
                       </p>
@@ -342,7 +342,7 @@ const PropertyTermsPage = () => {
                         </li>
                       </ul>
                       <p className="text-secondary small mb-0">
-                        Rentio will provide exportable records of all notices, invoices, and payment history as
+                        RentalHub will provide exportable records of all notices, invoices, and payment history as
                         supporting documentation for court proceedings.
                       </p>
                     </div>
@@ -354,11 +354,11 @@ const PropertyTermsPage = () => {
             {/* 5. Landlord Obligations */}
             <section id="landlord-obligations" className="mb-5">
               <h3 className="fw-semibold mb-3">5. Landlord Obligations</h3>
-              <p>As a Property Owner on Rentio, you undertake to:</p>
+              <p>As a Property Owner on RentalHub, you undertake to:</p>
               <ul className="list-unstyled d-flex flex-column gap-2">
                 {[
                   'Maintain the demised premises in a habitable condition throughout the tenancy.',
-                  'Provide a receipt for every payment received, whether processed through Rentio or otherwise.',
+                  'Provide a receipt for every payment received, whether processed through RentalHub or otherwise.',
                   'Not increase rent more frequently than once every 12 months, and only with the required notice period.',
                   'Return the security deposit within 30 days of lease termination, less any documented deductions.',
                   'Keep all tenant personal data collected through the platform confidential and not share it with unauthorised third parties.',
@@ -375,7 +375,7 @@ const PropertyTermsPage = () => {
             {/* 6. Termination */}
             <section id="termination" className="mb-5">
               <h3 className="fw-semibold mb-3">6. Termination of Account</h3>
-              <p>Rentio reserves the right to suspend or terminate a Property Owner's account without notice if:</p>
+              <p>RentalHub reserves the right to suspend or terminate a Property Owner's account without notice if:</p>
               <ul className="list-unstyled d-flex flex-column gap-2">
                 {[
                   'You engage in an unlawful eviction or self-help remedy against a tenant.',
@@ -399,7 +399,7 @@ const PropertyTermsPage = () => {
             <section id="dispute-resolution" className="mb-5">
               <h3 className="fw-semibold mb-3">7. Dispute Resolution</h3>
               <p>
-                In the event of a dispute between a Property Owner and Rentio, the parties shall first attempt to
+                In the event of a dispute between a Property Owner and RentalHub, the parties shall first attempt to
                 resolve the matter amicably within 30 days of written notice of the dispute. If unresolved, the dispute
                 shall be referred to mediation under the Nairobi Centre for International Arbitration (NCIA) Mediation
                 Rules. If mediation fails, the matter shall be submitted to binding arbitration in Nairobi, Kenya,
@@ -407,7 +407,7 @@ const PropertyTermsPage = () => {
               </p>
               <p>
                 Disputes between Property Owners and Tenants are subject to the jurisdiction of the relevant Rent
-                Tribunal or Magistrate's Court in the county where the property is situated. Rentio is not a party to
+                Tribunal or Magistrate's Court in the county where the property is situated. RentalHub is not a party to
                 such disputes but will cooperate with lawful court orders for the disclosure of platform records.
               </p>
             </section>
@@ -440,7 +440,7 @@ const PropertyTermsPage = () => {
             <Card className="border-0 bg-body-secondary">
               <Card.Body className="text-secondary small">
                 <p className="mb-1">
-                  <strong>Need clarification?</strong> Contact Rentio support for guidance on applying these terms to
+                  <strong>Need clarification?</strong> Contact RentalHub support for guidance on applying these terms to
                   your specific situation.
                 </p>
                 <p className="mb-0">
@@ -459,7 +459,7 @@ const PropertyTermsPage = () => {
       <footer className="border-top py-4 mt-4">
         <Container fluid="xxl">
           <Row className="align-items-center">
-            <Col className="text-secondary small">© {new Date().getFullYear()} Rentio. All rights reserved.</Col>
+            <Col className="text-secondary small">© {new Date().getFullYear()} RentalHub. All rights reserved.</Col>
             <Col xs="auto" className="d-flex gap-3">
               <Link to="/tenant-terms" className="text-secondary small text-decoration-none">
                 Tenant Terms

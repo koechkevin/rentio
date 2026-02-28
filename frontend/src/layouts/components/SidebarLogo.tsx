@@ -9,7 +9,7 @@ const SidebarLogo = () => {
 
   return !isSidebarFolded ? (
     <Link to="/" className="sidebar-brand">
-      Rent<span>IO</span>
+      Rental<span>Hub</span>
       {/* <img 
           src={ themeMode === 'light' ? getUrl('/images/logo-mini-light.png') : getUrl('/images/logo-mini-dark.png') } 
           className="h-25px" 

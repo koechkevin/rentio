@@ -147,7 +147,7 @@ const ResetPasswordPage = () => {
         <Col md={12} className="ps-md-0">
           <div className="px-5 py-5">
             <Link to="/auth/login" className="nobleui-logo d-block mb-2">
-              Rent<span>IO</span>
+              Rental<span>Hub</span>
             </Link>
             <h4 className="mb-4">Invalid Reset Link</h4>
             <Alert variant="danger">
@@ -173,7 +173,7 @@ const ResetPasswordPage = () => {
       <Col md={12} className="ps-md-0">
         <div className="px-5 py-5">
           <Link to="/auth/login" className="nobleui-logo d-block mb-2">
-            Rent<span>IO</span>
+            Rental<span>Hub</span>
           </Link>
           <h4 className="mb-2">Reset Your Password</h4>
           <p className="mb-4 text-secondary">Enter your new password below.</p>

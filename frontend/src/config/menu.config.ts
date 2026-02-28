@@ -89,6 +89,12 @@ const ADMIN_MENU: MenuItem[] = [
     roles: ['OWNER', 'ADMIN'],
     link: '/finance/arrears',
   },
+  {
+    label: 'Billing Items',
+    icon: Zap,
+    roles: ['OWNER', 'ADMIN'],
+    link: '/finance/billing-items',
+  },
 
   {
     label: 'MARKETING',

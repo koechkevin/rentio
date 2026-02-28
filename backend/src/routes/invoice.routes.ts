@@ -92,4 +92,31 @@ router.get(
   invoiceController.getCustomerArrears,
 );
 
+/**
+ * @swagger
+ * /invoices/bulk/from-billing-items:
+ *   post:
+ *     summary: Bulk create invoices from all PENDING billing items (grouped by customer)
+ *     tags: [Invoices]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: X-Property-Id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       201:
+ *         description: Bulk result with created invoices and skipped entries
+ *       400:
+ *         description: Validation error
+ */
+router.post(
+  "/bulk/from-billing-items",
+  extractPropertyId,
+  authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
+  invoiceController.bulkCreateInvoicesFromBillingItems,
+);
+
 export default router;

@@ -1,8 +1,13 @@
 import { Response, NextFunction } from "express";
 import prisma from "../../utils/prisma";
 import { AuthRequest } from "../../middleware/auth";
-import { InvoiceStatus, BillingDuration } from "@prisma/client";
+import { InvoiceStatus, BillingDuration, Prisma } from "@prisma/client";
 import { AppError } from "../../middleware/errorHandler";
+import {
+  BillingItemService,
+  BILLING_ITEM_TYPE_LABELS,
+} from "../../services/billingItem.service";
+import { InvoiceService } from "../../services/invoice.service";
 import {
   autoAllocateToNewInvoice,
   calculateArrears,
@@ -821,5 +826,143 @@ export const restoreInvoiceHandler = async (
     });
   } catch (error) {
     next(error);
+  }
+};
+
+// ─── Bulk Create Invoices from Pending Billing Items ─────────────────────────
+
+export const bulkCreateInvoicesFromBillingItems = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const propertyId = req.propertyId!;
+    const userId = req.user!.id;
+
+    // Fetch all PENDING billing items for this property (not soft-deleted)
+    const pendingItems = await prisma.billingItem.findMany({
+      where: { propertyId, status: "PENDING", deletedAt: null },
+      include: {
+        unit: { select: { id: true, unitNumber: true } },
+        customer: { select: { id: true, fullName: true } },
+      },
+      orderBy: [
+        { customerId: "asc" },
+        { year: "asc" },
+        { billingPeriod: "asc" },
+      ],
+    });
+
+    if (pendingItems.length === 0) {
+      return res.json({
+        success: true,
+        message: "No pending billing items found",
+        data: { created: [], skipped: [] },
+      });
+    }
+
+    // Group by customerId
+    const grouped = new Map<string, typeof pendingItems>();
+    for (const item of pendingItems) {
+      const group = grouped.get(item.customerId) ?? [];
+      group.push(item);
+      grouped.set(item.customerId, group);
+    }
+
+    const created: Array<{
+      invoiceNumber: string;
+      customerName: string;
+      itemCount: number;
+      totalAmount: number;
+    }> = [];
+    const skipped: Array<{ customerName: string; reason: string }> = [];
+
+    for (const [, items] of grouped) {
+      const firstItem = items[0];
+      const customerName = firstItem.customer?.fullName ?? firstItem.customerId;
+      // All items in a group share the same unit (one customer → one active unit)
+      const unitId = firstItem.unitId;
+
+      try {
+        const totalAmount = items.reduce((sum, i) => sum + Number(i.amount), 0);
+        const dueDate = new Date();
+        dueDate.setDate(dueDate.getDate() + 30);
+        const invoiceNumber = await InvoiceService.generateInvoiceNumber();
+
+        const invoiceItems = items.map((item) => {
+          const typeLabel =
+            BILLING_ITEM_TYPE_LABELS[item.itemType] ?? item.itemType;
+          const periodLabel = BillingItemService.generateBillingPeriodLabel(
+            item.frequency,
+            item.billingPeriod,
+            item.year,
+          );
+          const billingPeriodDate = BillingItemService.billingPeriodToDate(
+            item.frequency,
+            item.billingPeriod,
+            item.year,
+          );
+          return {
+            itemName: typeLabel,
+            itemDescription: `${typeLabel} — ${periodLabel}`,
+            unitAmount: new Prisma.Decimal(Number(item.amount)),
+            quantity: new Prisma.Decimal(1),
+            billingDuration: BillingDuration.ONE_TIME,
+            billingPeriod: billingPeriodDate,
+            total: new Prisma.Decimal(Number(item.amount)),
+          };
+        });
+
+        await prisma.$transaction(async (tx) => {
+          const newInvoice = await tx.invoice.create({
+            data: {
+              invoiceNumber,
+              customerId: firstItem.customerId,
+              propertyId,
+              unitId,
+              totalAmount: new Prisma.Decimal(totalAmount),
+              vatAmount: new Prisma.Decimal(0),
+              subTotal: new Prisma.Decimal(totalAmount),
+              vatRate: new Prisma.Decimal(0),
+              dueDate,
+              status: InvoiceStatus.DRAFT,
+              createdBy: userId,
+              items: { create: invoiceItems },
+            },
+          });
+
+          // Mark all billing items as INVOICED
+          await tx.billingItem.updateMany({
+            where: { id: { in: items.map((i) => i.id) } },
+            data: { status: "INVOICED" },
+          });
+
+          items.forEach(async (item) => {
+            await tx.billingItem.update({
+              where: { id: item.id },
+              data: { invoiceId: newInvoice.id },
+            });
+          });
+        });
+
+        created.push({
+          invoiceNumber,
+          customerName,
+          itemCount: items.length,
+          totalAmount,
+        });
+      } catch (err: any) {
+        skipped.push({ customerName, reason: err?.message ?? "Unknown error" });
+      }
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: `Bulk invoices: ${created.length} created, ${skipped.length} skipped`,
+      data: { created, skipped },
+    });
+  } catch (err) {
+    next(err);
   }
 };

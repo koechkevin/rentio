@@ -88,7 +88,7 @@ const VerifyEmailPage = () => {
       <Col md={12} className="ps-md-0">
         <div className="auth-form-wrapper px-5 py-5">
           <Link to="/" className="nobleui-logo d-block mb-2">
-            Rent<span>IO</span>
+            Rental<span>Hub</span>
           </Link>
           <h5 className="text-secondary fw-normal mb-4">Verify your email address</h5>
           <p className="text-secondary mb-4">

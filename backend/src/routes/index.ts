@@ -8,6 +8,7 @@ import uploadRoutes from "./upload.routes";
 import invoiceRoutes from "./invoice.routes";
 import propertyInvoiceRoutes from "./owner/propertyInvoice.routes";
 import propertyPaymentRoutes from "./owner/propertyPayment.routes";
+import billingItemRoutes from "./billing-item.routes";
 import { authenticate } from "../middleware/auth";
 
 const router = Router();
@@ -21,5 +22,6 @@ router.use(`/uploads`, authenticate, uploadRoutes);
 router.use(`/invoices`, invoiceRoutes);
 router.use("/property-invoices", propertyInvoiceRoutes);
 router.use("/property-payments", propertyPaymentRoutes);
+router.use("/billing-items", billingItemRoutes);
 
 export default router;

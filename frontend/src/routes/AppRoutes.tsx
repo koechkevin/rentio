@@ -48,6 +48,10 @@ const InvoiceList = lazy(() => import('@/pages/invoices/InvoiceList'));
 const CreateInvoiceForm = lazy(() => import('@/pages/invoices/CreateInvoiceForm'));
 import InvoiceDetail from '@/pages/invoices/InvoiceDetail';
 
+// Billing Items
+const BillingItemList = lazy(() => import('@/pages/billing-items/BillingItemList'));
+const CreateBillingItem = lazy(() => import('@/pages/billing-items/CreateBillingItem'));
+
 // Payment Management
 const PaymentList = lazy(() => import('@/pages/payments/PaymentList'));
 const CreatePaymentForm = lazy(() => import('@/pages/payments/CreatePaymentForm'));
@@ -109,6 +113,10 @@ const AppRoutes = () => {
             <Route path="/finance/payments" element={<PaymentList />} />
             <Route path="/finance/payments/create" element={<CreatePaymentForm />} />
             <Route path="/finance/arrears" element={<ArrearsTable />} />
+
+            {/* Billing Items Routes */}
+            <Route path="/finance/billing-items" element={<BillingItemList />} />
+            <Route path="/finance/billing-items/create" element={<CreateBillingItem />} />
 
             <Route
               path="charts/apexcharts"

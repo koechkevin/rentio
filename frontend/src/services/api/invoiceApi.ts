@@ -98,6 +98,15 @@ export interface SuggestedItemsResponse {
   };
 }
 
+export interface BulkInvoiceResult {
+  success: boolean;
+  message: string;
+  data: {
+    created: Array<{ invoiceNumber: string; customerName: string; itemCount: number; totalAmount: number }>;
+    skipped: Array<{ customerName: string; reason: string }>;
+  };
+}
+
 export const invoiceApi = createApi({
   reducerPath: 'invoiceApi',
   baseQuery: baseQueryWithReauth,
@@ -179,6 +188,13 @@ export const invoiceApi = createApi({
       }),
       invalidatesTags: ['Invoice'],
     }),
+    bulkCreateInvoicesFromBillingItems: builder.mutation<BulkInvoiceResult, void>({
+      query: () => ({
+        url: '/invoices/bulk/from-billing-items',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Invoice'],
+    }),
   }),
 });
 
@@ -194,4 +210,5 @@ export const {
   useLazyGetSuggestedItemsQuery,
   useGetMyInvoicesQuery,
   useCancelInvoiceMutation,
+  useBulkCreateInvoicesFromBillingItemsMutation,
 } = invoiceApi;

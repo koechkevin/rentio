@@ -49,7 +49,7 @@ const LoginPage = () => {
       <Col md={12}>
         <div className="px-5 py-5">
           <Link to="." className="nobleui-logo d-block mb-2">
-            Rent<span>IO</span>
+            Rental<span>Hub</span>
           </Link>
           <h5 className="text-secondary fw-normal mb-4">Welcome back! Log in to your account.</h5>
           <Form onSubmit={handleSubmit} autoComplete="on">

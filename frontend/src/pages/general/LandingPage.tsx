@@ -115,7 +115,7 @@ export default function LandingPage() {
         <Navbar expand="lg" className="navbar-dark bg-dark border-bottom border-secondary sticky-top navbar-backdrop">
           <Container>
             <motion.div whileHover={{ scale: 1.05 }}>
-              <Navbar.Brand className="fw-bold fs-4 rentio-brand">Rentio</Navbar.Brand>
+              <Navbar.Brand className="fw-bold fs-4 rentio-brand">RentalHub</Navbar.Brand>
             </motion.div>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
@@ -157,7 +157,7 @@ export default function LandingPage() {
                 className="fs-5 text-secondary mb-5 mx-auto"
                 style={{ maxWidth: '600px' }}
               >
-                Rentio is the all-in-one platform for property management. Handle invoicing, payments, tenants, and
+                RentalHub is the all-in-one platform for property management. Handle invoicing, payments, tenants, and
                 analytics in one beautiful dashboard.
               </motion.p>
 
@@ -280,7 +280,7 @@ export default function LandingPage() {
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 0.8 }}>
             <Row className="align-items-center g-5">
               <Col lg={6}>
-                <h2 className="display-4 fw-bold mb-5">Why Choose Rentio?</h2>
+                <h2 className="display-4 fw-bold mb-5">Why Choose RentalHub?</h2>
                 <motion.div variants={containerVariants} initial="hidden" whileInView="visible">
                   {[
                     'Reduce administrative overhead by up to 80%',
@@ -339,7 +339,7 @@ export default function LandingPage() {
           >
             <h2 className="display-4 fw-bold mb-4">Ready to Transform Your Business?</h2>
             <p className="fs-5 text-secondary mb-5 mx-auto" style={{ maxWidth: '600px' }}>
-              Join hundreds of property managers who are already saving time and money with Rentio.
+              Join hundreds of property managers who are already saving time and money with RentalHub.
             </p>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
@@ -359,7 +359,7 @@ export default function LandingPage() {
         <Container>
           <Row className="mb-5 g-4">
             <Col md={3} className="mb-4">
-              <div className="fs-4 fw-bold rentio-brand mb-3">Rentio</div>
+              <div className="fs-4 fw-bold rentio-brand mb-3">RentalHub</div>
               <p className="text-secondary">Smart property management for modern businesses.</p>
             </Col>
             <Col md={3}>
@@ -423,7 +423,7 @@ export default function LandingPage() {
             whileInView={{ opacity: 1 }}
             className="border-top border-secondary pt-4 text-center text-muted"
           >
-            <p>&copy; 2026 Rentio. All rights reserved.</p>
+            <p>&copy; 2026 RentalHub. All rights reserved.</p>
           </motion.div>
         </Container>
       </motion.footer>

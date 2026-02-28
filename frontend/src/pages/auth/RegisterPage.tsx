@@ -70,7 +70,7 @@ const RegisterPage = () => {
       <Col md={12} className="ps-md-0">
         <div className="auth-form-wrapper px-5 py-5">
           <Link to="/" className="nobleui-logo d-block mb-2">
-            Rent<span>IO</span>
+            Rental<span>Hub</span>
           </Link>
           <h5 className="text-secondary fw-normal mb-4">Create a free account.</h5>
           <Form onSubmit={handleSubmit} autoComplete="on">
@@ -166,15 +166,24 @@ const RegisterPage = () => {
                 label={
                   <>
                     I have read and agree to the{' '}
-                    <Link to="/terms" target="_blank">Terms & Conditions</Link>
-                    {' '}and{' '}
-                    <Link to="/tenant-terms" target="_blank">Tenant Terms</Link>
+                    <Link to="/terms" target="_blank">
+                      Terms & Conditions
+                    </Link>{' '}
+                    and{' '}
+                    <Link to="/tenant-terms" target="_blank">
+                      Tenant Terms
+                    </Link>
                   </>
                 }
               />
             </div>
             <div>
-              <Button type="submit" variant="primary" className="me-2 mb-2 mb-md-0 w-100" disabled={isLoading || !termsAccepted}>
+              <Button
+                type="submit"
+                variant="primary"
+                className="me-2 mb-2 mb-md-0 w-100"
+                disabled={isLoading || !termsAccepted}
+              >
                 {isLoading ? (
                   <>
                     <Spinner size="sm" animation="border" /> Signing up...

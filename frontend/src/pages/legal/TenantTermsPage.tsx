@@ -28,7 +28,7 @@ const TenantTermsPage = () => {
       <Navbar bg="body" style={{ left: 0, width: '100%' }} className="border-bottom px-3 py-2">
         <Container fluid="xxl">
           <Navbar.Brand as={Link} to="/" className="fw-bold fs-5">
-            Rentio
+            RentalHub
           </Navbar.Brand>
           <Nav className="ms-auto">
             <Nav.Link as={Link} to="/" className="d-flex align-items-center gap-1 text-secondary">
@@ -66,7 +66,7 @@ const TenantTermsPage = () => {
                   <p className="fw-semibold text-primary mb-2 d-flex align-items-center gap-1">
                     <Shield size={14} /> Data Controller
                   </p>
-                  <p className="mb-1 text-secondary">Rentio Technologies Ltd</p>
+                  <p className="mb-1 text-secondary">RentalHub Technologies Ltd</p>
                   <p className="mb-1 text-secondary">Nairobi, Kenya</p>
                   <p className="mb-0">
                     <a href="mailto:privacy@rentalhub.cloud" className="text-primary">
@@ -90,10 +90,10 @@ const TenantTermsPage = () => {
                 Last updated: {LAST_UPDATED} &nbsp;·&nbsp; Effective upon tenancy commencement
               </p>
               <p>
-                This document sets out your rights and obligations as a Tenant on the Rentio platform. It also serves as
-                our Privacy Notice explaining how we collect, use, and protect your personal data in compliance with the{' '}
-                <strong>Kenya Data Protection Act, 2019</strong> and aligned with international best practices including
-                the EU General Data Protection Regulation (GDPR).
+                This document sets out your rights and obligations as a Tenant on the RentalHub platform. It also serves
+                as our Privacy Notice explaining how we collect, use, and protect your personal data in compliance with
+                the <strong>Kenya Data Protection Act, 2019</strong> and aligned with international best practices
+                including the EU General Data Protection Regulation (GDPR).
               </p>
               <hr />
             </div>
@@ -102,12 +102,12 @@ const TenantTermsPage = () => {
             <section id="acceptance" className="mb-5">
               <h3 className="fw-semibold mb-3">1. Acceptance of Terms</h3>
               <p>
-                By activating your Tenant account on Rentio — whether by invitation from your Property Owner or by
+                By activating your Tenant account on RentalHub — whether by invitation from your Property Owner or by
                 self-registration — you agree to these Terms. If you do not agree, you must not use the platform.
               </p>
               <p>
                 Where these Terms conflict with your physical lease agreement, the lease agreement shall govern matters
-                of tenancy. These Terms govern your use of the Rentio digital platform and the processing of your
+                of tenancy. These Terms govern your use of the RentalHub digital platform and the processing of your
                 personal data.
               </p>
             </section>
@@ -118,7 +118,7 @@ const TenantTermsPage = () => {
               <p>As a Tenant, you agree to:</p>
               <ul className="list-unstyled d-flex flex-column gap-2">
                 {[
-                  'Pay rent by the due date specified in your lease agreement and reflected in your Rentio invoice.',
+                  'Pay rent by the due date specified in your lease agreement and reflected in your RentalHub invoice.',
                   'Keep the demised premises clean and in good repair, fair wear and tear excepted.',
                   'Notify your Property Owner through the platform of any maintenance issues within a reasonable time.',
                   'Not sublet, assign, or grant any licence over the premises without the written consent of the Property Owner.',
@@ -137,7 +137,7 @@ const TenantTermsPage = () => {
             <section id="payment-terms" className="mb-5">
               <h3 className="fw-semibold mb-3">3. Payment Terms &amp; Consequences of Arrears</h3>
               <p>
-                Rentio generates rent invoices automatically based on your lease terms. Payment is due on the date
+                RentalHub generates rent invoices automatically based on your lease terms. Payment is due on the date
                 specified in each invoice. The following applies to overdue payments:
               </p>
 
@@ -192,8 +192,8 @@ const TenantTermsPage = () => {
                 </Card.Header>
                 <Card.Body className="p-4">
                   <p>
-                    Rentio is committed to protecting your personal data. This section constitutes our Privacy Notice as
-                    required by the <strong>Kenya Data Protection Act, 2019 (No. 24 of 2019)</strong> and is aligned
+                    RentalHub is committed to protecting your personal data. This section constitutes our Privacy Notice
+                    as required by the <strong>Kenya Data Protection Act, 2019 (No. 24 of 2019)</strong> and is aligned
                     with the EU <strong>General Data Protection Regulation (GDPR)</strong> to meet international
                     standards.
                   </p>
@@ -462,7 +462,7 @@ const TenantTermsPage = () => {
               </h5>
               <p className="text-secondary">
                 Where your data is transferred outside Kenya (e.g., to cloud infrastructure located in the EU or US),
-                Rentio ensures adequate protection through:
+                RentalHub ensures adequate protection through:
               </p>
               <ul className="list-unstyled d-flex flex-column gap-2">
                 {[
@@ -484,7 +484,7 @@ const TenantTermsPage = () => {
             {/* 7. Cookies */}
             <section id="cookies" className="mb-5">
               <h3 className="fw-semibold mb-3">7. Cookies &amp; Tracking</h3>
-              <p>Rentio uses the following types of cookies and similar technologies:</p>
+              <p>RentalHub uses the following types of cookies and similar technologies:</p>
               <ul className="list-unstyled d-flex flex-column gap-2">
                 {[
                   {
@@ -544,7 +544,7 @@ const TenantTermsPage = () => {
             <section id="dispute-resolution" className="mb-5">
               <h3 className="fw-semibold mb-3">9. Dispute Resolution</h3>
               <p>
-                Disputes between you and your Property Owner should first be raised through the Rentio in-app issue
+                Disputes between you and your Property Owner should first be raised through the RentalHub in-app issue
                 reporting system to create a documented record. If unresolved, disputes may be referred to:
               </p>
               <ul className="list-unstyled d-flex flex-column gap-2">
@@ -561,7 +561,7 @@ const TenantTermsPage = () => {
                 ))}
               </ul>
               <p className="mt-3">
-                Disputes between you and Rentio regarding platform services shall be resolved by mediation under the
+                Disputes between you and RentalHub regarding platform services shall be resolved by mediation under the
                 NCIA Mediation Rules, and thereafter by binding arbitration in Nairobi, Kenya.
               </p>
             </section>

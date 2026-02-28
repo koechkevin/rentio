@@ -42,7 +42,7 @@ const ForgotPasswordPage = () => {
       <Col md={12} className="ps-md-0">
         <div className="px-5 py-5">
           <Link to="/auth/login" className="nobleui-logo d-block mb-2">
-            Rent<span>IO</span>
+            Rental<span>Hub</span>
           </Link>
           <h4 className="mb-4">Forgot your password?</h4>
           <p className="mb-4 text-secondary">

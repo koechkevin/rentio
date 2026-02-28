@@ -20,7 +20,7 @@ const InvoicePage = () => {
                 <Row>
                   <Col>
                     <Link to="." className="nobleui-logo d-block mt-3">
-                      Rent<span>IO</span>
+                      Rental<span>Hub</span>
                     </Link>
                     <p className="mt-3 mb-1">
                       <b>RentalHub Solutions Inc.</b>
