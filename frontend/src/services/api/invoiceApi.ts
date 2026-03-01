@@ -195,6 +195,13 @@ export const invoiceApi = createApi({
       }),
       invalidatesTags: ['Invoice'],
     }),
+    sendInvoiceNotification: builder.mutation<Invoice, string>({
+      query: (id) => ({
+        url: `/invoices/${id}/send-notification`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, id) => [{ type: 'Invoice', id }],
+    }),
   }),
 });
 
@@ -211,4 +218,5 @@ export const {
   useGetMyInvoicesQuery,
   useCancelInvoiceMutation,
   useBulkCreateInvoicesFromBillingItemsMutation,
+  useSendInvoiceNotificationMutation,
 } = invoiceApi;

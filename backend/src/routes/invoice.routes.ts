@@ -119,4 +119,11 @@ router.post(
   invoiceController.bulkCreateInvoicesFromBillingItems,
 );
 
+router.post(
+  "/:id/send-notification",
+  extractPropertyId,
+  authorizeProperty(PropertyRole.OWNER, PropertyRole.CARETAKER),
+  invoiceController.resendInvoiceNotification,
+);
+
 export default router;

@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Row, Col, Card, Table, Badge, Button, Spinner, Alert, Form, InputGroup, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Trash2, Plus, Search, FileStack } from 'lucide-react';
+import { Eye, Plus, Search, FileStack, Send } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { InvoiceStatus, type Invoice } from '../../types/invoice.types';
 import {
   useGetInvoicesQuery,
   useDeleteInvoiceMutation,
   useBulkCreateInvoicesFromBillingItemsMutation,
+  useSendInvoiceNotificationMutation,
   type BulkInvoiceResult,
 } from '../../services/api/invoiceApi';
 import { useAppSelector } from '@/store/store';
@@ -39,6 +40,7 @@ const InvoiceList = () => {
 
   const [deleteInvoice] = useDeleteInvoiceMutation();
   const [bulkCreateInvoices, { isLoading: isBulkInvoiceLoading }] = useBulkCreateInvoicesFromBillingItemsMutation();
+  const [sendInvoiceNotification, { isLoading: isSendingNotification }] = useSendInvoiceNotificationMutation();
 
   const invoices = data?.data || [];
   const totalPages = data?.pagination?.totalPages || 1;
@@ -73,6 +75,32 @@ const InvoiceList = () => {
     } catch (err: any) {
       Swal.fire({
         title: err.data?.message || 'Error creating invoices',
+        icon: 'error',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3500,
+      });
+    }
+  };
+
+  const handleResendInvoice = async (id: string, invoiceNumber: string) => {
+    try {
+      await sendInvoiceNotification(id).unwrap();
+      Swal.fire({
+        title: 'Success',
+        text: `Invoice ${invoiceNumber} sent successfully`,
+        icon: 'success',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3500,
+      });
+      refetch();
+    } catch (err: any) {
+      Swal.fire({
+        title: 'Error',
+        text: err.data?.message || 'Failed to send invoice',
         icon: 'error',
         toast: true,
         position: 'top-end',
@@ -220,25 +248,31 @@ const InvoiceList = () => {
                             <Badge bg={getStatusVariant(invoice.status)}>{invoice.status}</Badge>
                           </td>
                           <td>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              onClick={() => handleView(invoice.id)}
-                              title="View Invoice"
-                            >
-                              <Eye size={16} />
-                            </Button>
-                            {invoice.status !== InvoiceStatus.PAID && (
+                            <div className="d-flex gap-2">
                               <Button
                                 variant="link"
                                 size="sm"
-                                className="text-danger"
-                                onClick={() => handleDelete(invoice.id)}
-                                title="Delete Invoice"
+                                onClick={() => handleView(invoice.id)}
+                                title="View Invoice"
                               >
-                                <Trash2 size={16} />
+                                <Eye size={16} />
                               </Button>
-                            )}
+                              {invoice.status === InvoiceStatus.DRAFT && (
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  onClick={() => handleResendInvoice(invoice.id, invoice.invoiceNumber)}
+                                  disabled={isSendingNotification}
+                                  title="Send Invoice"
+                                >
+                                  {isSendingNotification ? (
+                                    <Spinner animation="border" size="sm" />
+                                  ) : (
+                                    <Send size={16} />
+                                  )}
+                                </Button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -268,13 +302,10 @@ const InvoiceList = () => {
         </Modal.Header>
         <Modal.Body>
           <p>
-            This will create invoices for all <strong>PENDING</strong> billing items in this property,
-            grouped by customer. Each customer will receive one invoice containing all their pending
-            billing items as line items.
+            This will create invoices for all <strong>PENDING</strong> billing items in this property, grouped by
+            customer. Each customer will receive one invoice containing all their pending billing items as line items.
           </p>
-          <p className="text-muted small mb-0">
-            Customers with no pending billing items will be skipped.
-          </p>
+          <p className="text-muted small mb-0">Customers with no pending billing items will be skipped.</p>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowBulkConfirmModal(false)}>
@@ -282,9 +313,15 @@ const InvoiceList = () => {
           </Button>
           <Button variant="success" onClick={handleBulkCreateInvoices} disabled={isBulkInvoiceLoading}>
             {isBulkInvoiceLoading ? (
-              <><Spinner animation="border" size="sm" className="me-2" />Creating...</>
+              <>
+                <Spinner animation="border" size="sm" className="me-2" />
+                Creating...
+              </>
             ) : (
-              <><FileStack size={16} className="me-2" />Create Invoices</>
+              <>
+                <FileStack size={16} className="me-2" />
+                Create Invoices
+              </>
             )}
           </Button>
         </Modal.Footer>
@@ -293,7 +330,10 @@ const InvoiceList = () => {
       {/* Bulk Create Invoices Result Modal */}
       <Modal
         show={showBulkResultModal}
-        onHide={() => { setShowBulkResultModal(false); setBulkInvoiceResult(null); }}
+        onHide={() => {
+          setShowBulkResultModal(false);
+          setBulkInvoiceResult(null);
+        }}
         size="lg"
         centered
       >
@@ -365,7 +405,13 @@ const InvoiceList = () => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={() => { setShowBulkResultModal(false); setBulkInvoiceResult(null); }}>
+          <Button
+            variant="primary"
+            onClick={() => {
+              setShowBulkResultModal(false);
+              setBulkInvoiceResult(null);
+            }}
+          >
             Done
           </Button>
         </Modal.Footer>

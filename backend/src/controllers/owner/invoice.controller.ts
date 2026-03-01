@@ -938,12 +938,13 @@ export const bulkCreateInvoicesFromBillingItems = async (
             data: { status: "INVOICED" },
           });
 
-          items.forEach(async (item) => {
-            await tx.billingItem.update({
+          const promises = items.map(async (item) => {
+            return tx.billingItem.update({
               where: { id: item.id },
               data: { invoiceId: newInvoice.id },
             });
           });
+          await Promise.all(promises);
         });
 
         created.push({
@@ -964,5 +965,111 @@ export const bulkCreateInvoicesFromBillingItems = async (
     });
   } catch (err) {
     next(err);
+  }
+};
+
+/**
+ * Resend/Send invoice notification email to customer
+ * OWNER and CARETAKER only
+ */
+export const resendInvoiceNotification = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+    const propertyId = req.propertyId!;
+
+    // Validate invoice exists and belongs to property
+    const invoice = await prisma.invoice.findFirst({
+      where: {
+        id,
+        propertyId,
+        deletedAt: null,
+      },
+      include: {
+        customer: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+    });
+
+    if (!invoice) {
+      throw new AppError("Invoice not found", 404);
+    }
+
+    // Send notification to customer
+    const originUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    await sendInvoiceNotifications(
+      {
+        email: invoice.customer.email || undefined,
+        phone: invoice.customer.phone,
+      },
+      {
+        id: invoice.id,
+        invoiceNumber: invoice.invoiceNumber,
+        totalAmount: invoice.totalAmount.toString(),
+        dueDate: invoice.dueDate.toISOString().split("T")[0],
+      },
+      originUrl,
+    );
+
+    // Update invoice status to SENT if not already
+    const updatedInvoice = await prisma.invoice.update({
+      where: { id },
+      data: {
+        status: InvoiceStatus.SENT,
+      },
+      include: {
+        items: true,
+        customer: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            phone: true,
+          },
+        },
+        unit: {
+          select: {
+            id: true,
+            unitNumber: true,
+            type: true,
+          },
+        },
+        property: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        allocations: {
+          select: {
+            id: true,
+            amount: true,
+            payment: {
+              select: {
+                id: true,
+                reference: true,
+                paidAt: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    res.status(200).json({
+      message: "Invoice notification sent successfully",
+      data: updatedInvoice,
+    });
+  } catch (error) {
+    next(error);
   }
 };
