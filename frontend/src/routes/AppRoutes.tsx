@@ -10,6 +10,7 @@ import AddUnit from '@/pages/properties/units/AddUnit';
 import UnitsRedirect from '@/pages/properties/units/UnitsRedirect';
 import EditProperty from '@/pages/properties/EditProperty';
 import AddTenant from '@/pages/properties/units/AddTenant';
+const PayslipGenerator = lazy(() => import('@/pages/payslips/PayslipGenerator'));
 
 // User Management
 const UserManagement = lazy(() => import('@/pages/users/UserManagement'));
@@ -154,6 +155,7 @@ const AppRoutes = () => {
           <Route path="auth/reset-password" element={<ResetPasswordPage />} />
           <Route path="auth/verify-email" element={<VerifyEmailPage />} />
         </Route>
+        <Route path="payslips/generate" element={<PayslipGenerator />} />
         <Route element={<ErrorLayout />}>
           <Route path="error/404" element={<Error404Page />} />
           <Route path="error/500" element={<Error500Page />} />
